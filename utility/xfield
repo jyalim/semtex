@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# xfield: extract the nominated field from a field file, place it in a
+# field file of its own.
+#
+# Usage: xfield <num> file
+#
+# $Id: xfield,v 8.1 2015/04/20 11:14:19 hmb Exp $
+##############################################################################
+
+if test $# -ne 2
+then
+  echo 'usage: xfield <num> file' 1>&2; exit 2
+else
+  n=$1
+  f=$2
+fi
+
+convert -a $f | head > hdr.asc
+ed -s hdr.asc << XXXoooXXX
+9d
+8a
+c                         Fields written
+.
+w
+q
+XXXoooXXX
+convert -a $f | chop -s 11 | slit -c $n > fld.asc
+cat hdr.asc fld.asc  
+
+exit 0

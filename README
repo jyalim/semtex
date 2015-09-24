@@ -1,0 +1,147 @@
+				S E M T E X
+				===========
+
+Synopsis
+--------
+This code is for spectral element solution of (incompressible
+Navier--Stokes) time-varying and elliptic PDEs.  Geometries
+accommodated are 2D Cartesian or cylindrical, and "2+1/2D", i.e. 2D x
+Fourier, again Cartesian or cylindrical.
+
+Distribution
+------------
+The src directory contains source for the central routines/classes of
+spectral/finite element solvers.  Application programs/Makefiles can
+be found in upper-level directories:
+
+elliptic  Solve elliptic (Laplace, Poisson, Helmholtz) problems.
+dns       Navier--Stokes DNS in Cartesian or cylindrical geometries.
+utility   Various utility programs.
+
+The code has been tested with (and makefiles support) the following
+operating systems: SGI IRIX6.5 (32 & 64-bit), DEC OSF1/Digital Unix,
+GNU/Linux (iX86 & alpha), Fujitsu VPP300, NEC SX-4/5, Mac OSX 10.3,
+Linux-AMD Opteron x86_64 and Linix-Intel Itanium-2 ia64.
+
+Makefiles assume GNUmake: for purposes of automated compilation and
+testing decribed below "gmake", in your path, should find GNUmake.
+You should also have RCS installed on your system.  SuperMongo and
+Amtec's TECPLOT would be nice to have but are not needed.  For
+concurrent execution MPI is required.  You will also need C, C++ and
+FORTRAN77 (or F90, F95) compilers.
+
+Author
+------
+Hugh M. Blackburn
+Department of Mechanical & Aerospace Engineering
+Monash University
+Vic 3800
+Australia
+mailto:hugh.blackburn@eng.monash.edu.au
+
+Starting out
+------------
+
+Say "make test" at the top level of the directory tree. All tests
+should report as "passed".
+
+The long-hand way to do the above is:
+
+1.  Run uname -s.  Check there is a matching directory under the lib
+    directory and that it contains libalp.a and libfem.a.  If not, run
+    "make libs".
+
+2.  Change directory to utility.  Make "enumerate", and "compare" at least,
+    or just make to create all the utilities.  You will need to put
+    enumerate and compare in your path as other codes will try to run
+    them.
+
+3.  Change directory to dns; make; cd ../test; testregress
+    ../dns/dns.
+
+Files
+-----
+Semtex uses a base input file which describes the mesh and boundary
+conditions.  We call this a "session" file and typically it has no
+root extension.  It is written in a format patterned on HTML, which we
+have called FEML (for Finite Element Markup Language).  There are a
+number of example session files in the mesh directory.  Other files
+have standard extensions:
+
+session.num  Global node numbers, produced by enumerate utility.
+session.fld  Solution/field file.  Binary format by default.
+session.rst  Restart file.  Read in to initialize solution if present.
+session.avg  Average file.  Used to store time-mean averages.
+
+After writing a new session file it is best to run meshpr on it before
+trying to use it for simulations.  Meshpr will catch most of the
+easier-to-make errors.  You can also plot up the results using
+SuperMongo or other utility as a visual check.
+
+Utilities
+---------
+Can be found in the utility directory:
+
+enumerate Generate global node numbering, with RCM optimization.
+compare   Generate restart files, compare solutions to a function.
+convert   Convert field file formats (IEEE-big/little, ASCII).
+meshpr    Generate 2D mesh locations for plotting or checking.
+addvort   Add vorticity vector components to a field file.
+addfield  Add vorticity, also divergence, helicity, etc.
+sem2tec   Convert field files to Amtec TECPLOT format.
+project   Convert a field file to a different order interpolation.
+interp    Interpolate field file from one 2D mesh to another.
+probe     Probe field file at specified points.
+noiz      Add a random perturbation to a field file.
+calc      An interactive calculator that calls the built-in function parser.
+rstress   Compute a Reynolds stresses from a .avg file, subtract averages.
+
+All executables have a -h command line option which gives a help prompt.
+
+Log of major revisions
+----------------------
+
+24 Mar 1995: Base 2D version of code completed in C.               Semtex-1.
+
+22 Jan 1996: C --> C++ conversion completed.                       Semtex-2.
+
+20 Dec 1996: 2D Cartesian/Fourier (i.e. 3D periodic) spaces.       Semtex-3.
+
+03 Feb 1997: Heat/scalar transfer supported.
+
+06 Jun 1997: Cylindrical solutions in 2D or 3D supported.          Semtex-4.0.
+
+08 Aug 1997: Generalized prime factor FFT routines.                Semtex-4.1.
+
+25 Aug 1997: Massless particle tracking.                           Semtex-4.2.
+
+09 Sep 1997: Eddy-viscosity LES.                                   Semtex-4.3.
+
+18 Dec 1997: Concurrent execution with MPI.                        Semtex-5.0.
+
+06 Mar 1998: Improved vectorization & IO performance.              Semtex-5.1.
+
+12 Mar 1998: RNG eddy-viscosity model added.                       Semtex-5.2.
+
+7  Apr 1999: Mixed BC type added.                                  Semtex-5.3.
+
+13 Apr 2000: Fix pressure BC modal bugs, improve vectorisation.    Semtex-5.4.
+
+1  Jun 2003: Adopt standard C++ libraries wherever possible.       Semtex-5.5.
+
+1  Nov 2004: Cylindrical coordinate/3D code exponentially convergent. Semtex-6.
+
+1  Dec 2004: Mac OSX port -- filenames no longer case-sensitive.
+
+
+Notes for specific systems
+--------------------------
+
+1.  Linux: the GNU FORTRAN library may be called f2c or g2c,
+apparently depending on the release of g77 installed.  Makefiles
+assume g2c, but you may have to change that to f2c or make a symbolic
+link from /usr/lib/libf2c.a to /usr/lib/libg2c.a if you have trouble
+in the link stages of compilation.
+
+--
+$Id: README,v 8.1 2015/04/20 11:14:13 hmb Exp $

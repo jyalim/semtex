@@ -1,0 +1,26 @@
+#!/bin/csh
+##############################################################################
+# An example script that automates NP-convergence testing.
+#
+# $Id: testconvg,v 8.1 2015/04/20 11:14:18 hmb Exp $
+##############################################################################
+
+if ($#argv < 1) then 
+    echo "usage: testconvg session"
+    exit 0
+endif
+
+set SESSION = $1
+
+foreach i (3 4 5 6 7 8 9 10 11 12 13 14)
+#foreach i (12 13 14 )
+    sed "s/N_P.*/N_P=$i/" < $SESSION > _conv
+    echo NP=$i
+    compare _conv > _conv.rst
+    enumerate -O3 _conv > _conv.num
+    dns _conv > /dev/null
+    compare _conv _conv.fld > errors.fld
+end
+
+rm -f _conv*
+

@@ -1,0 +1,73 @@
+# -- 3D uniform flow normal to a tubular volume.
+##############################################################################
+# 4 element uniform flow normal to a tubular geometry, solved in cylindrical
+# space.  u = 0, v = cos(z), w = -sin(z).  There are no nonlinear terms.
+
+<FIELDS>
+	u v w p
+</FIELDS>
+
+<USER>
+	u = 0
+	v = cos(z)
+	w = -sin(z)
+	p = 0
+</USER>
+
+<TOKENS>
+	CYLINDRICAL = 1
+	N_Z         = 8
+	N_TIME      = 1
+	N_P      = 5
+	N_STEP      = 20
+	D_T         = 0.01
+	KINVIS      = 0.5
+</TOKENS>
+
+<GROUPS NUMBER=2>
+	1	v	value
+	2	a	axis
+</GROUPS>
+
+<BCS NUMBER=2>
+	1	v	4
+			<D>	u = 0		</D>
+			<D>	v = cos(z)	</D>
+			<D>     w = -sin(z)	</D>
+			<H>	p = 0		</H>
+	2	a	4
+			<A>	u = 0		</A>
+			<A>	v = 0		</A>
+			<A>	w = 0		</A>
+			<A>	p = 0		</A>
+</BCS>
+
+<NODES NUMBER=9>
+	1	0.0	0.0	0.0
+	2	1.0	0.0	0.0
+	3	2.0	0.0	0.0
+	4	0.0	0.5	0.0
+	5	1.0	0.5	0.0
+	6	2.0	0.5	0.0
+	7	0.0	1.0	0.0
+	8	1.0	1.0	0.0
+	9	2.0	1.0	0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1	<Q>	1 2 5 4		</Q>
+	2	<Q>	2 3 6 5		</Q>
+	3	<Q>	4 5 8 7		</Q>
+	4	<Q>	5 6 9 8		</Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+	1	1	1	<B>	a	</B>
+	2	2	1	<B>	a	</B>
+	3	2	2	<B>	v	</B>
+	4	4	2	<B>	v	</B>
+	5	4	3	<B>	v	</B>
+	6	3	3	<B>	v	</B>
+	7	3	4	<B>	v	</B>
+	8	1	4	<B>	v	</B>
+</SURFACES>

@@ -1,0 +1,89 @@
+# $Id: default,v 8.1 2015/04/20 11:14:17 hmb Exp $
+
+startup2        # Macro executed whenever SM starts
+		ptype 1 0
+		define my_macros { sta ld modal }
+		define sm_home   "/home/hmb/lib/sm"
+		foreach v { $!!my_macros } { macro read "$!sm_home/$!v.sm" }
+		define prism_macros { his hspec meshbox meshnum meshplot }
+		define prism_home "/home/hmb/lib/sm"
+		#define prism_home "/home/hmb/src/prism/sm"
+		foreach v { $!!prism_macros } { macro read "$!prism_home/$!v.sm" }
+status          # show current values of various things
+                show
+his             # history listing which doesn't log itself
+		del1 history -
+copy	3	# copy from one vector to another with skips
+		set jj_tmp = 0, DIMEN($1)-1, $2
+		set $3     = $1[ jj_tmp ]
+		delete jj_tmp
+MinMax	13      # Compute the min & max of a vector.
+		#
+		# INPUT : vector [min max]
+		#
+		# OUTPUT: If given, the variables $min and $max are
+		#         set. Otherwise, their values are echoed to
+		#         the screen
+		#
+		SET _tmp = $1
+		SORT { _tmp }
+		DEFINE _tmp_min (_tmp[0])
+		DEFINE _tmp_max (_tmp[(DIMEN(_tmp)-1)])
+		IF( $?3 ) {
+		   DEFINE $2 $_tmp_min
+		   DEFINE $3 $_tmp_max
+		} ELSE {
+		   echo $_tmp_min $_tmp_max 
+		}
+                FOREACH	v ( _tmp _tmp_min _tmp_max ) { DELETE $v }
+streak	0	# draw 	contour lines at cursor location
+		cursor x_d y_d
+		draw_contours x_d y_d 
+		delete x_d delete y_d
+draw_contours 13 # draws contour lines at x, y  locations, 
+		#if $3 is set draw labels 
+		expand 0.5
+		set x_dummy = $1
+		set y_dummy = $2
+		set a_dummy = image(x_dummy,y_dummy)
+		levels a_dummy
+		contour
+		if ($?3) {
+		   do i_dummy = 0, (DIMEN(a_dummy) -1) {
+		      define val_dummy (a_dummy[$i_dummy])
+		      define xp_dummy  (x_dummy[$i_dummy])
+		      define yp_dummy  (y_dummy[$i_dummy])
+		      define l_dummy  (string($val_dummy))
+		      relocate $xp_dummy $yp_dummy
+		      label $l_dummy
+		   }
+		   FOREACH v ( xp_dummy yp_dummy l_dummy ) { DELETE $v }
+		}
+		FOREACH v ( x_dummy y_dummy a_dummy i_dummy ) { DELETE $v }
+		expand 1
+NextPlot  1	# This should be reasonably generic. It pauses if invoked with
+		# a non null argument.
+		# if we_are_printing is defined it will prepares the printer
+		# current_printer
+		# for  next plot. It waits delay seconds is delay is defined.
+		define 0_junk_XX " "
+		define do_it $1
+		if ($do_it > 0) {
+		   echo dropped through
+		   if ($?we_are_printing) {
+		      device nodevice
+		      device postscript $current_printer
+		      if ($?delay) {
+		         !sleep $delay
+		      }
+		   } else {
+		      erase
+		   }
+		} else {
+		   define 0_junk_XX ? { < hit return > }
+		   if ($?delay) {
+		      !sleep $delay
+		   }
+		   erase
+		}
+		delete 0_junk_XX

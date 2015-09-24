@@ -1,0 +1,8 @@
+cosh 1
+	set $0 = 0.5*(exp($1)+exp(-$1))
+
+sinh 1
+	set $0 = 0.5*(exp($1)-exp(-$1))
+
+tanh 1
+	set $0 = sinh($1)/cosh($1)

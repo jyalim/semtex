@@ -1,0 +1,76 @@
+#!/bin/csh
+##############################################################################
+# Run Navier--Stokes solver on test files.
+# $Id: testsuite,v 8.1 2015/04/20 11:14:18 hmb Exp $
+
+echo "******************************************************"
+echo "* Spectral element Navier--Stokes solver test suite. *"
+echo "*                                                    *"
+echo "* (NB: pressure error norms are usually irrelevant.) *"
+echo "******************************************************"
+
+set CODE=dns
+set MESHDIR=../mesh
+
+if (!(-e $CODE)) then
+	echo "Building application, please wait..."
+	if { gmake } then
+	    gmake clean
+	    echo "Done."
+	else
+	    echo "Unable to compile."
+	    exit 1
+	endif
+	echo ""
+endif
+
+echo ""
+echo ""
+echo "-- CARTESIAN GEOMETRY --"
+echo ""
+echo ""
+echo "*** 2D TESTS ***"
+
+foreach SESS (taylor2 kovas1)
+  if (!(-e $SESS)) cp $MESHDIR/$SESS .
+  if (-e $SESS.num) rm -f $SESS.num
+  echo ""
+  head -1 $SESS
+  enumerate -O3 $SESS > $SESS.num
+  compare $SESS > $SESS.rst
+  $CODE -chk $SESS > /dev/null
+  compare $SESS $SESS.fld > /dev/null
+  rm $SESS*
+end
+
+echo ""
+echo ""
+echo "*** 3D TESTS ***"
+
+foreach SESS (taylor3 taylor4 taylor5 kovas2 kovas3 kovas4 kovas5)
+  if (!(-e $SESS)) cp $MESHDIR/$SESS .
+  if (-e $SESS.num) rm -f $SESS.num
+  echo ""
+  head -1 $SESS
+  enumerate -O3 $SESS > $SESS.num
+  compare $SESS > $SESS.rst
+  $CODE -chk $SESS > /dev/null
+  compare $SESS $SESS.fld > /dev/null
+  rm $SESS*
+end
+
+echo ""
+echo ""
+echo "-- CYLINDRICAL GEOMETRY --"
+
+foreach SESS (tube1 tube2 tube3 sbr tc1 cylkov2)
+  if (!(-e $SESS)) cp $MESHDIR/$SESS .
+  if (-e $SESS.num) rm -f $SESS.num
+  echo ""
+  head -1 $SESS
+  enumerate -O3 $SESS > $SESS.num
+  compare $SESS > $SESS.rst
+  $CODE -chk $SESS > /dev/null
+  compare $SESS $SESS.fld > /dev/null
+  rm $SESS*
+end

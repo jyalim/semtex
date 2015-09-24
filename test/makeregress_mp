@@ -1,0 +1,44 @@
+#!/bin/sh
+##############################################################################
+# Create regression test files for parallel Navier--Stokes solver.
+# Run only with a known good version of the code!
+# NB: you may need to edit the string MPIRUN to run a 2-process MPI job.
+#
+# $Id: makeregress_mp,v 8.1 2015/04/20 11:14:18 hmb Exp $
+
+case $# in
+0) echo "usage: makeregress_mp good_code_version"; exit 0
+esac
+
+CODE=$1
+MESHDIR=../mesh
+MPIRUN="mpirun -np 2"
+PATH=.:$PATH
+
+if  test ! -d ../regress
+then
+  mkdir ../regress
+fi
+
+if  test ! -d ../regress/MPI
+then
+  mkdir ../regress/MPI
+fi
+
+for i in taylor3 taylor4 taylor5 kovas2 kovas3 kovas4 kovas5
+do
+  if test ! -f $i 
+  then
+    cp $MESHDIR/$i .
+  fi
+  if test -f $i.num
+  then
+    rm -f $i.num
+  fi
+  enumerate -O3 $i > $i.num 2> /dev/null
+  compare $i > $i.rst
+  $MPIRUN $CODE -chk $i > /dev/null
+  compare -n $i $i.fld > /dev/null 2> ../regress/MPI/$i.ok
+  chmod 0444 ../regress/MPI/$i.ok
+  rm $i*
+done

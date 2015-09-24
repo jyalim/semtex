@@ -1,0 +1,166 @@
+moden 1		# Plot Modal energies
+		DATA $1
+		READ { t 1 m 2 e 3 }
+		SET le = lg(e)
+		LIMITS t le
+		NOTATION -5 5 1 1
+		TICKSIZE 0 0 -1 0
+		LOCATION 5000 31000 5000 31000
+		EXPAND 1.1
+		BOX
+		POINTS t le
+		XLABEL \it t
+		YLABEL \it E_k
+		EXPAND 1.0
+mode0 1		# Plot Modal energies, mode 0/2D only
+		DATA $1
+		READ { t 1 m 2 e 3 }
+		SET e0 = e IF (m == 0)
+		SET t0 = t IF (m == 0)
+		SET le = lg(e0)
+		LIMITS t0 le
+		NOTATION -5 5 1 1
+		TICKSIZE 0 0 -1 0
+		LOCATION 5000 31000 5000 31000
+		EXPAND 1.1
+		BOX
+		POINTS t0 le
+		XLABEL \it t
+		YLABEL \it E_0
+		EXPAND 1.0
+mavg  123	# Compute average modal energies
+		# usage: mavg nmodes ek specvec
+		# input:  nmodes  number of Fourier modes
+		#         ek      a vector of data with modal energies
+		# output: specvec a vector, nmodes long, with average energies
+		DEFINE _nmode $1
+		DEFINE _ek    $2
+		DEFINE _spec  $3
+		DEFINE _ndata (dimen ($_ek))
+		DEFINE _navg  ($_ndata / $_nmode)
+		SET DIMEN($_spec) = $_nmode
+		DO i=0,($_navg - 1) {
+		  DO j=0,($_nmode - 1) {
+		  SET $_spec[$j] = $_spec[$j] + $_ek[($i * $_nmode + $j)]
+		  }
+		}
+		SET $_spec  = $_spec / $_navg
+modav 123	# Average & plot modal energies
+		# usage: modav filename nmodes line
+		DATA $1
+		READ { ek 3 }
+		mavg $2 ek spec
+		SET ki = 0, ($_nmode - 1), 1
+		SET _lavg = LG(spec)
+		SET ki    = ki + 0.000001
+		NOTATION -5 5 1 1
+		TICKSIZE 0 0 -1 0
+		EXPAND 1.4
+		PTYPE 20 3
+		LOCATION 5000 31000 5000 31000
+		LIMITS ki _lavg
+		BOX
+		XLABEL \i k
+		YLABEL \langle{\i E(k)}\rangle
+		IF( $?3 ) { SET _mode = $3 } ELSE { SET _mode = 0 }
+		IF( _mode == 1 ) {
+		  CONNECT ki _lavg
+		  POINTS  ki _lavg
+                } else {
+		  POINTS  ki _lavg
+		}
+moddl 1		# Like moden but for dual's output.
+		DATA $1
+		READ { t 1 m0 2 mC 3 }
+		SET m0e = lg(m0)
+		SET mCe = lg(mC)
+		# set limits using both series ( base + mode )
+		MinMax m0e m0e_min m0e_max
+		MinMax mCe mCe_min mCe_max
+		DEFINE l_min (( $m0e_min < $mCe_min ? $m0e_min : $mCe_min )- 1)
+		DEFINE l_max (( $m0e_max < $mCe_max ? $mCe_max : $m0e_max )+ 1)
+		LIMITS t $l_min $l_max
+		NOTATION -5 5 1 1
+		TICKSIZE 0 0 -1 0
+		LOCATION 5000 31000 5000 31000
+		# WINDOW 1 1 1 1
+		EXPAND 1.1
+		BOX
+		POINTS t m0e
+		POINTS t mCe
+		XLABEL \it t
+		YLABEL \it E_k
+spectrum 4	# Compute the spectrum of second argument
+		# spectrum takes 4 arguments :
+	        # 1: input, 
+		#    a set representing time values (presumed equi-spaced)
+	        # 2: input,
+		#    a set of values whose spectral density is found
+		# 3: output,
+		#    the frequencies at which the spectrum is computed
+		# 4: output,
+		#    the corresponding spectrum
+		#
+		# The spectrum has N/2+1 points, where N is the
+		# number of data input. 
+                # The integral of the spectrum is the variance.
+		#
+		# Prior to computing the periodogram of $2,
+		# its mean value is removed
+	        # and the Welch (parabolic) data window applied.
+		#
+		# The 5 peak PSDs and their frequencies are echoed
+		# to the screen.
+		#
+		set _t = $1
+		set _u = $2
+		define _N dimen(_t)
+		MinMax _t _tmin _tmax
+		set _ur = _u - ( SUM(_u)/$_N )  # Real part = input - mean
+		set DIMEN(_ui) = DIMEN(_ur)    	# Imag part = 0
+		#
+		# Apply the Welch window.
+		#
+		set _jf = 0, DIMEN(_ur)-1
+		set _wf = 1 - 4*((_jf -0.5*$_N)**2)/($_N**2)
+		set _ur = _ur * _wf
+		define _wss ($_N*sum(_wf*_wf))
+		#
+		# Make spectral estimates.
+		#
+		fft 1 _ur _ui _fur _fui
+		set _upow = 2*($_tmax-$_tmin)*(_fur*_fur+_fui*_fui)/$_wss
+		set _i2   = 0, dimen(_t)/2
+		set _freq = _i2
+		set $3 = _freq[_i2] / ($_tmax - $_tmin) * ($_N)/($_N+1)
+		set $4 = _upow[_i2]
+		#
+		# Echo the peak values.
+		#
+		set _utmp = $4
+		set _ftmp = $3
+		sort { _utmp _ftmp } 
+		set i = DIMEN(_utmp)-1, DIMEN(_utmp)-5, -1
+		set  PSD = _utmp[i]
+		set  f   = _ftmp[i]
+		echo "5 peak spectral values:"
+                print '%10e %10e\n' { f PSD }
+		#
+		# Clean up.
+		#
+		define i { _t _u _ur _ui _jf _wf _fur _fui \
+                           _upow _i2 _utmp _ftmp _f _PSD } 
+		foreach v { $!!i} { DEFINE $v DELETE }
+		define  i { _N _wss _tmin _tmax } 
+		foreach v { $!!i } { DELETE $v }
+asp	1	# Plot autospectrum
+		DATA $1
+		READ {f 1 a 2}
+		LIMITS 0 1 a
+		CONNECT f a
+lasp	1	# Plot autospectrum
+		DATA $1
+		READ {f 1 a 2}
+		SET la = ln(a)
+		LIMITS 0 1 la
+		CONNECT f la

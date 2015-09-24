@@ -1,0 +1,90 @@
+# 4 element womersley flow 
+
+<FIELDS NUMBER=3>
+	u v p
+</FIELDS>
+
+<TOKENS>
+	CYLINDRICAL = 1
+	N_TIME      = 2
+	N_P      = 9
+	N_STEP      = 2500
+	D_T         = 0.001
+	KINVIS      = 0.01
+        IO_FLD      = 50
+        IO_CFL      = 20
+        IO_HIS      = 20
+	CHKPOINT    = 0
+	PipeR       = 0.5
+	Wnum        = 2*PI/2.5
+</TOKENS>
+
+<USER>
+u = womcos(y,PipeR,KINVIS,0,t)+0.75*womsin(y,PipeR,KINVIS,Wnum,t)
+v = 0
+p = 0
+</USER>
+
+<GROUPS NUMBER=4>
+	1	v	value
+	2	w	wall
+	3	o	exit
+	4	a	axis
+</GROUPS>
+
+
+<HISTORY NUMBER=4>
+	1   	0 	0	0
+	2	0.5	0	0
+	3	1.0	0	0
+	4	3	0	0
+</HISTORY>
+
+<BCS NUMBER=4>
+	1	v	3
+ <D> u = womcos(y,PipeR,KINVIS,0,t)+0.75*womsin(y,PipeR,KINVIS,Wnum,t) </D>
+			<D>	v = 0.0				</D>
+			<H>	p = 0				</H>
+	2	w	3
+			<D>	u = 0.0				</D>
+			<D>	v = 0.0				</D>
+			<H>	p = 0				</H>
+	3	o	3
+			<N>	u = 0.0				</N>
+			<N>	v = 0.0				</N>
+			<D>	p = 0.0				</D>
+	4	a	3
+			<A>	u 				</A>
+			<A>	v 				</A>
+			<A>	p 				</A>
+</BCS>
+
+<NODES NUMBER=9>
+	1	0.0	0.0	0.0
+	2	2.0	0.0	0.0
+	3	4.0	0.0	0.0
+	4	0.0	0.25	0.0
+	5	2.0	0.25	0.0
+	6	4.0	0.25	0.0
+	7	0.0	0.5	0.0
+	8	2.0	0.5	0.0
+	9	4.0	0.5	0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1	<Q>	1 2 5 4		</Q>
+	2	<Q>	2 3 6 5		</Q>
+	3	<Q>	4 5 8 7		</Q>
+	4	<Q>	5 6 9 8		</Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+	1	1	1	<B>	a	</B>
+	2	2	1	<B>	a	</B>
+	3	2	2	<B>	o	</B>
+	4	4	2	<B>	o	</B>
+	5	4	3	<B>	w	</B>
+	6	3	3	<B>	w	</B>
+	7	3	4	<B>	v	</B>
+	8	1	4	<B>	v	</B>
+</SURFACES>

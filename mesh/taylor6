@@ -1,0 +1,88 @@
+# -- 2D Taylor flow in x--y plane, 2D solution.
+##############################################################################
+# 2D Taylor flow in the x--y plane has the exact solution
+#
+# 	u = -cos(PI*x)*sin(PI*y)*exp(-2.0*PI*PI*KINVIS*t)
+# 	v =  sin(PI*x)*cos(PI*y)*exp(-2.0*PI*PI*KINVIS*t)
+#       w =  0
+# 	p = -0.25*(cos(2.0*PI*x)+cos(2.0*PI*y))*exp(-4.0*PI*PI*KINVIS*t)
+#
+# Use periodic boundaries (no BCs).
+
+<TOKENS>
+	N_TIME  = 2
+	N_P  = 11
+	N_STEP  = 5000
+	D_T     = 0.00001
+	Re      = 100.0
+	KINVIS  = 1.0/Re
+	TOL_REL = 1e-16
+</TOKENS>
+
+<FIELDS>
+	u	v	p
+</FIELDS>
+
+<USER>
+ 	u = -cos(PI*x)*sin(PI*y)*exp(-2.0*PI*PI*KINVIS*t)
+ 	v =  sin(PI*x)*cos(PI*y)*exp(-2.0*PI*PI*KINVIS*t)
+ 	p = -0.25*(cos(2.0*PI*x)+cos(2.0*PI*y))*exp(-4.0*PI*PI*KINVIS*t)
+</USER>
+
+<NODES NUMBER=25>
+    1	              0              0              0
+    2	            0.5              0              0
+    3	              1              0              0
+    4	            1.5              0              0
+    5	              2              0              0
+    6	              0            0.5              0
+    7	            0.5            0.5              0
+    8	              1            0.5              0
+    9	            1.5            0.5              0
+   10	              2            0.5              0
+   11	              0              1              0
+   12	            0.5              1              0
+   13	              1              1              0
+   14	            1.5              1              0
+   15	              2              1              0
+   16	              0            1.5              0
+   17	            0.5            1.5              0
+   18	              1            1.5              0
+   19	            1.5            1.5              0
+   20	              2            1.5              0
+   21	              0              2              0
+   22	            0.5              2              0
+   23	              1              2              0
+   24	            1.5              2              0
+   25	              2              2              0
+</NODES>
+
+<ELEMENTS NUMBER=16>
+    1	<Q>    1    2    7    6    </Q>
+    2	<Q>    2    3    8    7    </Q>
+    3	<Q>    3    4    9    8    </Q>
+    4	<Q>    4    5   10    9    </Q>
+    5	<Q>    6    7   12   11    </Q>
+    6	<Q>    7    8   13   12    </Q>
+    7	<Q>    8    9   14   13    </Q>
+    8	<Q>    9   10   15   14    </Q>
+    9	<Q>   11   12   17   16    </Q>
+   10	<Q>   12   13   18   17    </Q>
+   11	<Q>   13   14   19   18    </Q>
+   12	<Q>   14   15   20   19    </Q>
+   13	<Q>   16   17   22   21    </Q>
+   14	<Q>   17   18   23   22    </Q>
+   15	<Q>   18   19   24   23    </Q>
+   16	<Q>   19   20   25   24    </Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+    1    1    1    <P> 13 3 </P>
+    2    2    1    <P> 14 3 </P>
+    3    3    1    <P> 15 3 </P>
+    4    4    1    <P> 16 3 </P>
+    5    4    2    <P>  1 4 </P>
+    6    8    2    <P>  5 4 </P>
+    7   12    2    <P>  9 4 </P>
+    8   16    2    <P> 13 4 </P>
+</SURFACES>

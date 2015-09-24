@@ -1,0 +1,43 @@
+#!/bin/tcsh
+##############################################################################
+# Run the same job in a list of directories.
+#
+# Usage: run_job job dir_file
+# 
+# 	"job" is a (c)shell script (see "job_example")
+# 	"dir_file" is a list of directories in the current directory
+##############################################################################
+
+if ($#argv != 2) then
+	echo "Usage: run_job job dir_file"
+	exit 0
+endif
+
+if (!(-x $1)) then
+	echo "run_job: Can't execute job file: $1"
+	exit 1
+endif
+
+if (!(-e $2)) then
+	echo "run_job: Can't find directory file list: $2"
+	exit 1
+endif
+
+
+set rootdir = `pwd`
+set dirlist = `cat $2`
+
+if (-e done) then
+	rm done
+endif
+
+foreach i ($dirlist)
+	cd $i
+	$rootdir/$1
+	cd $rootdir
+	echo $1 "\t" $i "\t" `date` >> done
+	echo $1 "\t" $i "\t" `date` |  mail $USER
+end
+
+exit 0
+

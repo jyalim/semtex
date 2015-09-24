@@ -1,0 +1,20 @@
+hilbert 2 # Hilbert transform $1 --> $2
+	# Return 90 deg phase shift of real sequence $1 as $2.
+	# $1 must have even number of points.
+	set _ui = $1 * 0
+	set _nn = DIMEN($1)
+	set _n2 = _nn / 2
+	FFT  1 $1 _ui _fr _fi
+	set _hr = _fr * 0
+	set _hi = _fr * 0
+	do i = 0, _nn - 1, 1 {	# -- Hilbert transform.
+		if ($i >= _n2) {	# -- Multiply by +i.
+			set _hr[$i] = -_fi[$i]
+			set _hi[$i] =  _fr[$i]
+		} else {		# -- Multiply by -i.
+			set _hr[$i] =  _fi[$i]
+			set _hi[$i] = -_fr[$i]
+		}
+	}
+	FFT -1 _hr _hi $2 _ui
+	FOREACH v ( _fr _fi _hr _hi _ui _nn _n2 ) { DELETE $v }

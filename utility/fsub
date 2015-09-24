@@ -1,0 +1,53 @@
+#!/bin/csh
+#
+# fsub: subtract one semtex *binary* field file from another.  Output
+# a binary file to stdout.  Can be very slow for large field files.
+#
+# $Id: fsub,v 8.1 2015/04/20 11:14:18 hmb Exp $
+
+# -- Check number of arguments.
+
+if ($#argv < 2) then
+	echo "usage: fcomp file1 file2"
+	exit 1
+endif
+
+set f1 = $argv[1]
+set f2 = $argv[2]
+
+# -- Check that the two files conform.  This means that they have to
+#    have the same number of fields, and the same total number of
+#    data points.
+
+set n1 = `head $f1 | grep Elements | awk '{print $1 * $2 * $3 * $4}'`
+set n2 = `head $f2 | grep Elements | awk '{print $1 * $2 * $3 * $4}'`
+
+if ($n1 != $n2) then
+    echo "files have different numbers of points"
+    exit 1
+endif
+
+set nf1 = `head $f1 | grep Fields | awk '{print length($1)}'`
+set nf2 = `head $f2 | grep Fields | awk '{print length($1)}'`
+
+if ($nf1 != $nf2) then
+    echo "files have different numbers of fields"
+    exit 1
+endif
+
+# -- Preserve a header and subtract one field from another, output binary.
+
+convert $f1 | head       > header
+convert $f1 | chop -s 11 > $f1.dat
+convert $f2 | chop -s 11 > $f2.dat
+pr -m -t -s" " $f1.dat $f2.dat | awk '{      \
+    for (i = 1; i <= '$nf1'; i++)            \
+	printf "%17.8e ", $i - $(i + '$nf1') \
+    printf "\n" }' > diff.dat
+cat header diff.dat | convert
+
+# -- Clean up.
+
+rm header $f1.dat $f2.dat diff.dat
+
+exit 0

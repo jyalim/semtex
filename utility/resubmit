@@ -1,0 +1,11 @@
+#!/bin/csh
+#
+# resubmit session time
+# returns 1 if the final time in session.rst exceeds time (i.e. no resubmit).
+#
+# If no gawk, try nawk.
+
+head $1.rst | grep Time | grep -v step | \
+	gawk '{t = $1} \
+	END {if (t >= '$2') exit 1; else exit 0 }'
+

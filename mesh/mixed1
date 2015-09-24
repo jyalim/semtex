@@ -1,0 +1,57 @@
+# Poisson problem on unit square, with homogeneous essential BCs
+# on lower edge, mixed BC on upper edge, and periodic side-to-side.
+#
+
+<USER>
+	Exact    4+14.75*y-10*y*y
+	Forcing  -20
+</USER>
+
+<FIELDS>
+	c
+</FIELDS>
+
+<TOKENS>
+	N_P  = 11
+	TOL_REL = 1e-12
+</TOKENS>
+
+<GROUPS NUMBER=2>
+	1	m	mix
+	2	z	clamp
+</GROUPS>
+
+<BCS NUMBER=2>
+	1	m	1
+			<M>	c = 3;7		</M>
+	2	z	1
+			<D>	c = 4		</D>
+</BCS>
+
+<NODES NUMBER=9>
+	1	0.0	0.0	0.0
+	2	0.5	0.0	0.0
+	3	1.0	0.0	0.0
+	4	0.0	0.5	0.0
+	5	0.5	0.5	0.0
+	6	1.0	0.5	0.0
+	7	0.0	1.0	0.0
+	8	0.5	1.0	0.0
+	9	1.0	1.0	0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1 	<Q>	1 2 5 4		</Q>
+	2	<Q>	2 3 6 5		</Q>
+	3	<Q>	4 5 8 7		</Q>
+	4	<Q>	5 6 9 8		</Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=6>
+	1	1	1	<B>	z	</B>
+	2	2	1	<B>	z	</B>
+	3	2	2	<P>	1	4	</P>
+	4	4	2	<P>	3	4	</P>
+	5	4	3	<B>	m	</B>
+	6	3	3	<B>	m	</B>
+</SURFACES>

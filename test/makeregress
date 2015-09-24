@@ -1,0 +1,40 @@
+#!/bin/sh
+##############################################################################
+# Create regression test files for Navier--Stokes solver.
+# Run only with a known good version of the code!
+# $Id: makeregress,v 8.1 2015/04/20 11:14:18 hmb Exp $
+
+case $# in
+0) echo "usage: makeregress good_code_version"; exit 0
+esac
+
+CODE=$1
+MESHDIR=../mesh
+PATH=.:$PATH
+
+if  test ! -d ../regress
+then
+  mkdir ../regress
+fi
+for i in taylor2 kovas1 taylor3 taylor4 taylor5 kovas2 kovas3 \
+         kovas4 kovas5 tube1 tube2 tube3 sbr tc1 cylkov2
+do
+  if test ! -f $i 
+  then
+    cp $MESHDIR/$i .
+  fi
+  if test -f $i.num
+  then
+    rm -f $i.num
+  fi
+  compare $i > $i.rst
+  enumerate -O3 $i > $i.num
+  $CODE -chk $i > /dev/null
+  if test -f ../regress/$i.ok
+  then
+    chmod 0644 ../regress/$i.ok
+  fi
+  compare -n $i $i.fld > /dev/null 2> ../regress/$i.ok
+  chmod 0444 ../regress/$i.ok
+  rm $i*
+done

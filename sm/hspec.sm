@@ -1,0 +1,176 @@
+hspec	24	# usage: hspec t f [nk] [kmax]
+		#
+		# Show the "spectrum" of a history file
+		#
+		# This macro takes two vectors: a vector t for the "time" and 
+		# a vector "f" containing the value of some funtion at each
+		# instance of time, i.e., f(t).  It plots in the upper window
+		# the values of the function and in the lower window its
+		# energy spectrum.  The optional arguments are the number of
+		# frequencies to use (default 1024) and the upper frequency 
+		# limit for the spectrum (default 1).
+		#
+		# Echos the 5 peak values
+		#
+		set _t   = $1
+		set _u   = $2
+		set _dim = DIMEN(_t)
+		if ($?3) { define _nk   $3 } else { define _nk   1024 }
+		if ($?4) { define _kmax $4 } else { define _kmax 1    }
+		#
+		# Sort the input array into time order and create a new
+		# time array with even spacing
+		#
+		sort { _t _u }
+		MinMax _t _tmin _tmax
+		set _tn  = $_tmin, $_tmax, ($_tmax - $_tmin) / $_nk
+		set _dn  = DIMEN(_tn)
+		#
+		# Fit a spline through the input data
+		#
+		spline _t _u _tn _un
+		set _ur = _un - ( SUM(_un)/_dn )  # Real part
+		set DIMEN(_ui) = DIMEN(_ur)       # Imag part = 0
+		fft 1 _ur _ui _fur _fui
+		set _upow = _fur**2 + _fui**2
+		set _freq = 0, DIMEN(_tn)-1
+		set _freq = _freq / ($_tmax - $_tmin)
+		#
+		erase
+		window 1 2 1 2 limits _tn      _un   box connect _tn   _un
+		window 1 2 1 1 limits 0 $_kmax _upow box connect _freq _upow
+		# 
+		# Echo the peak values
+		#
+		set i = 0, DIMEN(_upow)/10
+		set _utmp = _upow[i]
+		set _ftmp = _freq[i]
+		sort { _utmp _ftmp } 
+		set i = DIMEN(_utmp)-1, DIMEN(_utmp)-6, -1
+		set  P = _utmp[i]
+		set  f = _ftmp[i]
+		echo "Peak values"
+		print { f P }
+		define i { _t _u _dim _tn _dn _un _ur _ui _fur _fui \
+		           _freq _upow _utmp _ftmp } 
+		foreach v { $!!i} { DEFINE $v DELETE }
+		define  i { _nk _kmax _tmin _tmax } 
+		foreach v { $!!i } { DELETE $v }
+lspec	24	# usage: lspec t f [nk] [kmax]
+		#
+		# Show the "spectrum" of a history file
+		#
+		# Same as hspec, but with logarithmic axes.
+		#
+		set _t   = $1
+		set _u   = $2
+		set _dim = DIMEN(_t)
+		if ($?3) { define _nk   $3 } else { define _nk   1024 }
+		if ($?4) { define _kmax $4 } else { define _kmax 1    }
+		#
+		# Sort the input array into time order and create a new
+		# time array with even spacing
+		#
+		sort { _t _u }
+		MinMax _t _tmin _tmax
+		set _tn  = $_tmin, $_tmax, ($_tmax - $_tmin) / $_nk
+		set _dn  = DIMEN(_tn)
+		#
+		# Fit a spline through the input data
+		#
+		spline _t _u _tn _un
+		set _ur = _un - ( SUM(_un)/_dn )  # Real part
+		set DIMEN(_ui) = DIMEN(_ur)       # Imag part = 0
+		#
+		# Apply the "Welch Window" filter
+		#
+		set _jf = 0, DIMEN(_ur)-1
+		set _wf = (1 - ((_jf - (_dn-1)/2)/((_dn+1)/2))**2)
+		set _ur = _ur * _wf
+		#
+		fft 1 _ur _ui _fur _fui
+		set _upow = LG(_fur**2 + _fui**2 + 1.e-6)
+		set _freq = 0, DIMEN(_tn)-1
+		set _freq = _freq / ($_tmax - $_tmin)
+		#
+		erase
+		ticksize 0 0 0 0
+		window 1 2 1 2 limits _tn      _un   box connect _tn   _un
+		ticksize 0 0 -1 10
+		window 1 2 1 1 limits 0 $_kmax _upow box connect _freq _upow
+		ticksize 0 0 0 0
+		define i { _t _u _dim _tn _dn _un _ur _ui _fur _fui \
+		           _freq _upow } 
+		foreach v { $!!i} { DEFINE $v DELETE }
+		define  i { _nk _kmax _tmin _tmax } 
+		foreach v { $!!i } { DELETE $v }
+fspec	24	# usage: fspec t f [nk] [kmax]
+		#
+		# Show the "spectrum" of a history file
+		#
+		# Filter the input data using a "Welch Filter"
+		#
+		# This macro takes two vectors: a vector t for the "time" and 
+		# a vector "f" containing the value of some funtion at each
+		# instance of time, i.e., f(t).  It plots in the upper window
+		# the values of the function and in the lower window its
+		# energy spectrum.  The optional arguments are the number of
+		# frequencies to use (default 1024) and the upper frequency 
+		# limit for the spectrum (default 1).
+		#
+		# Echos the 5 peak values
+		#
+		set _t   = $1
+		set _u   = $2
+		set _dim = DIMEN(_t)
+		if ($?3) { define _nk   $3 } else { define _nk   1024 }
+		if ($?4) { define _kmax $4 } else { define _kmax 1    }
+		#
+		# Sort the input array into time order and create a new
+		# time array with even spacing
+		#
+		sort { _t _u }
+		MinMax _t _tmin _tmax
+		set _tn  = $_tmin, $_tmax, ($_tmax - $_tmin) / $_nk
+		set _dn  = DIMEN(_tn)
+		#
+		# Fit a spline through the input data
+		#
+		spline _t _u _tn _un
+		set _ur = _un - ( SUM(_un)/_dn )  # Real part
+		set DIMEN(_ui) = DIMEN(_ur)       # Imag part = 0
+		#
+		# Apply the "Welch Window" filter
+		#
+		set _jf = 0, DIMEN(_ur)-1
+		set _wf = (1 - ((_jf - (_dn-1)/2)/((_dn+1)/2))**2)
+		set _ur = _ur * _wf
+		#
+		fft 1 _ur _ui _fur _fui
+		set _upow = _fur**2 + _fui**2
+		set _freq = 0, DIMEN(_tn)-1
+		set _freq = _freq / ($_tmax - $_tmin)
+		#
+		erase
+		window 1 2 1 2 limits _tn      _ur   box connect _tn   _ur
+		window 1 2 1 1 limits 0 $_kmax _upow box connect _freq _upow
+		# 
+		# Echo the peak values
+		#
+		set i = 0, DIMEN(_upow)/10
+		set _utmp = _upow[i]
+		set _ftmp = _freq[i]
+		sort { _utmp _ftmp } 
+		set i = DIMEN(_utmp)-1, DIMEN(_utmp)-6, -1
+		set  PDF = _utmp[i]
+		set  f   = _ftmp[i]
+		define fp ( SUM(f * PDF) / SUM(PDF) )
+		echo "Peak values"
+		print { f PDF }
+		echo "Peak frequency =" $fp
+		define i { _t _u _dim _tn _dn _un _ur _ui _fur _fui \
+		           _freq _upow _utmp _ftmp } 
+		foreach v { $!!i} { DEFINE $v DELETE }
+		define  i { _nk _kmax _tmin _tmax } 
+		foreach v { $!!i } { DELETE $v }
+		

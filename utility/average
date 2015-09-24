@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# average: compute the average values of each column of input, print up.
+# Maximum of 128 columns.  Number of columns on each line assumed identical.
+#
+# $Id: average,v 8.1 2015/04/20 11:14:18 hmb Exp $
+
+awk '
+BEGIN { for (i = 1; i <= 128; i++) sum[i] = 0.0 }
+{ N = NF; for (i = 1; i <= NF; i++) sum[i] += $i }
+END { for (i = 1; i <= N; i++) printf ("%8g ", sum[i] / NR); printf ("\n") }
+'

@@ -1,0 +1,43 @@
+#!/bin/csh
+##############################################################################
+# Run parallel Navier--Stokes solver on test files.
+# $Id: testsuite_mp,v 8.1 2015/04/20 11:14:18 hmb Exp $
+
+if (!(-e dns_mp)) then
+	echo "Building application, please wait..."
+	if { gmake } then
+	    gmake clean
+	    echo "Done."
+	else
+	    echo "Unable to compile."
+	    exit 1
+	endif
+	echo ""
+endif
+
+echo "    ******************************************************"
+echo "    * Spectral element Navier--Stokes solver test suite. *"
+echo "    *                                                    *"
+echo "    *             ** Parallel code version **            *"
+echo "    *                                                    *"
+echo "    * NB: ignore pressure -- Field 'p' -- error norms.   *"
+echo "    ******************************************************"
+
+rm -f *.num
+
+if (!(-e kovas2))  cp ../mesh/kovas2  .
+if (!(-e kovas3))  cp ../mesh/kovas3  .
+if (!(-e kovas4))  cp ../mesh/kovas4  .
+if (!(-e kovas5))  cp ../mesh/kovas5  .
+if (!(-e taylor3)) cp ../mesh/taylor3 .
+if (!(-e taylor4)) cp ../mesh/taylor4 .
+if (!(-e taylor5)) cp ../mesh/taylor5 .
+
+foreach i (taylor3 taylor4 taylor5 kovas2 kovas3 kovas4 kovas5)
+   echo ""
+   compare $i > $i.rst
+   mpirun -np 2 ./dns_mp $i > /dev/null
+   compare $i $i.fld > /dev/null
+   rm $i*
+end
+

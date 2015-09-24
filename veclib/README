@@ -1,0 +1,195 @@
+###############################################################################
+#              V E C T O R    A L G E B R A    P R I M I T I V E S
+#
+# $Id: README,v 8.1 2015/04/20 11:14:19 hmb Exp $
+###############################################################################
+
+SYNOPSIS: Vector algebra primitives (veclib).
+---------
+
+INTRODUCTION:
+------------- 
+The library descends from the Intel iPSC/2 VECLIB library.
+Available vector operations complement the BLAS.
+
+Not all the VECLIB routines are implemented: for example those which
+are already in the BLAS are omitted and there are some additions,
+notably those for memory management.  (The BLAS are given a C-compatible
+call interface by macros in cveclib.h.)
+
+NOTES:
+------
+
+No checks are made for length of vectors, negative lengths.
+	
+Negative increments are allowed; behaviour is the same as for the
+BLAS, q.v., i.e. if the vector increment is negative, the supplied
+vector address is the last item to be accessed, with vector traverse
+beginning at the supplied address + (n-1) * abs (inc), (further along
+the vector).
+
+See the iPSC/2 Programmer's Reference Manual and the
+C VECLIB Routine Summary for further information.
+
+KEY:
+----
+#:	not implemented.
+%:	replaced by BLAS routine.
+x:	implemented with indicated precision.
+*:	an extension to VECLIB.
+-:	not applicable.
+
+-----------------------------------------------------------------------------
+Section		Name              Available Precision	d   s   c   z   i
+-----------------------------------------------------------------------------
+
+UTILITIES:
+*		message
+*		efopen
+*               printxvector                            x   x           x
+
+MEMORY MANAGEMENT:
+*               vector  / free_vector.................. x   x   x   x   x
+*		matrix  / free_matrix.................. x   x   x   x   x
+*		3matrix / free_3matrix................. x   x   x   x   x
+
+MATHEMATICAL PRIMITIVES:
+%		swap
+                copy................................... x   x           x
+		fill................................... x   x           x
+		neg.................................... x   x           x
+		vneg................................... x   x           x
+*               znan................................... x   x
+*		vsgn................................... x   x           x
+		sadd................................... x   x           x
+		vadd................................... x   x           x
+		vsub................................... x   x           x
+		smul................................... x   x           x
+		vmul................................... x   x           x
+%		scal
+		sdiv................................... x   x           x
+		vrecp.................................. x   x
+		vdiv................................... x   x           x
+*		zero................................... x   x           x
+*		spow................................... x   x
+
+OTHER MATHEMATICAL FUNCTIONS:
+		vabs................................... x   x           x
+#		vmax
+#		vmin
+		vamax.................................. x   x           x
+#		vamin
+		vpow................................... x   x
+                vexp................................... x   x
+                vlg10.................................. x   x
+		vlog................................... x   x
+		vatan.................................. x   x
+		vatn2.................................. x   x
+                vcos................................... x   x
+                vsin................................... x   x
+		vsqrt.................................. x   x
+		random (ranu).......................... x   x
+		vrandom................................ x   x
+*		normal................................. x   x
+*		vnormal................................ x   x
+*		fft.................................... x   x   x   x
+*               vhypot................................. x   x
+*               vtanh.................................. x   x
+
+TRIAD OPERATIONS:
+%		axpy
+		svmvt.................................. x   x
+		svpvt.................................. x   x
+	        svtsp.................................. x   x
+		svtvm.................................. x   x
+		svtvp.................................. x   x
+		svvmt.................................. x   x
+		svvpt.................................. x   x
+		svvtm.................................. x   x
+		svvtp.................................. x   x
+*               svvtt.................................. x   x
+		vvmvt.................................. x   x
+		vvpvt.................................. x   x
+		vvtvm.................................. x   x
+		vvtvp.................................. x   x
+		vvvtm.................................. x   x
+*		vvvtt.................................. x   x
+
+RELATIONAL PRIMITIVES:
+#		eq
+		seq....................................                 x
+#		ge
+		sge.................................... x   x           x
+#		gt
+#		sgt
+		sle.................................... x   x           x
+		slt.................................... x   x           x
+#		ne
+		sne.................................... x   x           x
+
+LOGICAL PRIMITIVES:
+#		land
+#		lnot
+#		lor
+#		lsand
+#		lsor
+#		lcopy
+#		lfill
+
+REDUCTION FUNCTIONS:
+%		asum
+%		dzasum
+%		scasum
+		sum.................................... x   x           x
+%		nrm2
+%		dot
+%		dotc
+%		dotu
+		i_max.................................. x   x           x
+		i_min.................................. x   x           x
+		icount................................. -   -   -   -   x
+		ifirst................................. -   -   -   -   x
+#		ilast
+		lany................................... -   -   -   -   x
+*               lxsame................................. x   x           x
+
+CONVERSION PRIMITIVES:
+#		vcmplx
+#		vconjg
+		vdble..................................     x
+		vsngl.................................. x
+		vfloa.................................. x   x   -   -   -  
+*		brev................................... x   x           x
+
+MISCELLANEOUS FUNCTIONS:
+		scatr.................................. x   x           x
+		gathr.................................. x   x           x
+*		gathr_scatr............................ x   x           x
+*               scatr_sum.............................. x   x           x
+*               gathr_sum.............................. x   x           x
+*               gathr_scatr_sum........................ x   x           x
+		ramp................................... x   x           x
+                clip................................... x   x           x
+*               clipup................................. x   x           x
+*               clipdn................................. x   x           x
+                iclip.................................. x   x           x
+		cndst.................................. x   x           x
+		mask................................... x   x           x
+#               fft
+#               ifft
+%               rot
+%               rotg
+#               folr
+#               solr
+#               lbidi
+#               trfac
+#		ubidi
+		vpoly.................................. x   x
+*		polint................................. x   x
+*		splint................................. x   x
+*		mxm.................................... x   x
+*		mxv.................................... x   x
+*		mxva................................... x   x
+*               vvtvvtp................................ x   xw
+*               vvtvvtm................................ x   xw
+*               svvttvp................................ x   x

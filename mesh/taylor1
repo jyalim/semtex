@@ -1,0 +1,60 @@
+##############################################################################
+# Taylor flow has the exact solution
+#
+# 	u = -cos(PI*x)*sin(PI*y)*exp(-2.0*PI*PI*KINVIS*t)
+# 	v =  sin(PI*x)*cos(PI*y)*exp(-2.0*PI*PI*KINVIS*t)
+# 	p = -0.25*(cos(2.0*PI*x)+cos(2.0*PI*y))*exp(-4.0*PI*PI*KINVIS*t)
+#
+# We supply the exact essential BCs on velocity.
+#
+
+PROBLEM {
+navierstokes
+geometry 2D-Cartesian
+}
+
+PARAMETER {
+1 option
+LL	RULE
+
+4 integer
+2	N_VAR
+1	N_TIME
+11	N_P
+500	N_STEP
+
+4 floating
+0.02					DELTAT
+100.0					Re
+1.0/Re					KINVIS
+1.0e-8					TOL_REL
+}
+
+BOUNDARY CONDITIONS {
+1 boundary segment
+1 essential -cos(PI*x)*sin(PI*y)*exp(-2*PI*PI*KINVIS*t) sin(PI*x)*cos(PI*y)*exp(-2*PI*PI*KINVIS*t)
+}
+
+MESH {
+9 vertices
+1	0	0	0
+2	1	0	0
+3	2	0	0
+4	0	1	0
+5	1	1	0
+6	2	1	0
+7	0	2	0
+8	1	2	0
+9	2	2	0
+
+4 elements
+1 4 1 2 5 4
+2 4 2 3 6 5
+3 4 4 5 8 7
+4 4 5 6 9 8
+
+1 boundary
+1 1 9 1 2 3 6 9 8 7 4 1
+
+0 curves
+}

@@ -1,0 +1,13 @@
+# $Id: gp.sm,v 8.1 2015/04/20 11:14:17 hmb Exp $
+
+gp	1	# just plot 2 variables against one another
+		DATA $1
+		READ {a 1 b 2}
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS a b
+		BOX
+		CONNECT a b
+ps	1	# set up to direct output to $1.ps
+		dev postscript :SY@: :OF@: $1
+

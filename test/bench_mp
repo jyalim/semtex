@@ -1,0 +1,59 @@
+#!/bin/sh
+##############################################################################
+# Run parallel Navier--Stokes solver as a benchmark.
+#
+# NB: dns_mp must be compiled with ALIAS=1 as well as MPI=1 so that
+# 1-CPU job computes same answer as n-CPU jobs.
+#
+# $Id: bench_mp,v 8.1 2015/04/20 11:14:18 hmb Exp $
+
+case $# in
+0) echo "usage: bench_mp new_code_version"; exit 0
+esac
+
+# -- Run MPI on a specified number of CPUs (edit me):
+
+MPIRUN="mpirun -np "
+
+# -- Special commands to start up/stop MPI (e.g. lamboot/lamwipe).
+
+MPISTART=
+MPISTOP=
+
+# -- Prefix command to obtain timing information.
+
+TIME=time
+
+CODE=$1
+MESHD=../mesh
+REGRD=../regress/MPI
+PATH=.:$PATH
+
+# -- Solve in periodic domain with Taylor--Green vortex ICs.
+#    Session tgreen100 has 100 elements x 96 planes of data.
+#    It can be run on 1 2 4 6 8 12 16 24 32 48 CPUS
+
+SESSION=tgreen100
+TESTCPU="4 2 1"
+
+cp $MESHD/$SESSION .
+compare $SESSION > $SESSION.rst
+enumerate -O3 $SESSION > $SESSION.num
+
+$MPISTART
+
+for NCPU in $TESTCPU
+do
+  echo NCPU:   $NCPU
+  $TIME $MPIRUN $NCPU $CODE $SESSION > /dev/null
+  compare -n $SESSION $SESSION.fld > /dev/null 2> $SESSION.new
+  cmp -s $SESSION.new $REGRD/$SESSION.ok
+  case $? in
+  0) echo passed: $NCPU ;;
+  1) echo failed: $NCPU ;;
+  esac
+done
+
+$MPISTOP
+
+rm -f $SESSION*

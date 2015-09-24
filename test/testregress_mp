@@ -1,0 +1,37 @@
+#!/bin/sh
+##############################################################################
+# Run parallel Navier--Stokes solver regression checks.
+# NB: you may need to edit the string MPIRUN to run a 2-process MPI job.
+#
+# $Id: testregress_mp,v 8.1 2015/04/20 11:14:18 hmb Exp $
+
+case $# in
+0) echo "usage: testregress_mp new_code_version"; exit 0
+esac
+
+CODE=$1
+MESHDIR=../mesh
+MPIRUN="mpirun -np 2"
+PATH=.:$PATH
+
+for i in taylor3 taylor4 taylor5 kovas2 kovas3 kovas4 kovas5
+do
+  if test ! -f $i
+  then
+    cp $MESHDIR/$i .
+  fi
+  if test -f $i.num
+  then
+    rm -f $i.num
+  fi
+  enumerate -O3 $i > $i.num 2> /dev/null
+  compare $i > $i.rst
+  $MPIRUN $CODE -chk $i > /dev/null 2>&1
+  compare -n $i $i.fld > /dev/null 2> $i.new
+  cmp -s $i.new ../regress/MPI/$i.ok
+  case $? in
+  0) echo passed: $i ;;
+  1) echo failed: $i ;;
+  esac
+  rm $i*
+done

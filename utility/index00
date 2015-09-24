@@ -1,0 +1,11 @@
+echo $1 $2 $3 $4 | awk '
+  {
+	start = $1 ;
+	end   = $2 ;
+	inc   = $3 ;
+        width = $4
+  }
+  END {
+	 for (i = start; i <= end; i += inc)
+	 printf "%0'$4'd\n", i
+  } '

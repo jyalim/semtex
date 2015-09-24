@@ -1,0 +1,69 @@
+meshbox	02	# Draw axes for an SEM mesh plot
+		# 
+		# INPUT: [xoff yoff]
+		#
+		# This macro draws axes for a mesh plot.  The x- and y-axis
+		# is computed to span only the size of the mesh in that 
+		# direction.  The optional offset parameters move the axis
+		# with respect to the mesh.  [x,y]off > 0 farther from the
+		# mesh, < 0 is closer to the mesh.
+		#
+		# You must call meshplot first!
+		# 
+		# -------------------------------------------------------------
+		# EXTERNALS: _mesh_nr _mesh_ns _mesh_nel _mesh_x _mesh_y
+		# -------------------------------------------------------------
+		# $Id: meshbox.sm,v 8.1 2015/04/20 11:14:17 hmb Exp $
+		#
+                DEFINE  i { gx1 gx2 gy1 gy2 fx1 fx2 fy1 fy2 angle }
+                FOREACH v { $!!i } { DEFINE $v | }
+		#
+		# set the x- and y-axis offset
+		#
+		IF ($?1) { DEFINE _x_off $1 } ELSE { DEFINE _x_off 1000 }
+		IF ($?2) { DEFINE _y_off $2 } ELSE { DEFINE _y_off 1000 }
+		#
+		# get the mesh limits, clipped the current window
+		#
+		MinMax _mesh_x _x_min _x_max
+		MinMax _mesh_y _y_min _y_max
+		DEFINE _x_min (( $_x_min < $fx1 ? $fx1 : $_x_min ))
+		DEFINE _x_max (( $_x_max > $fx2 ? $fx2 : $_x_max ))
+		DEFINE _y_min (( $_y_min < $fy1 ? $fy1 : $_y_min ))
+		DEFINE _y_max (( $_y_max > $fy2 ? $fy2 : $_y_max ))
+		#
+		DEFINE _x_GL	( $gx2 - $gx1 )
+		DEFINE _x_FL	( $fx2 - $fx1 )
+		DEFINE _y_GL	( $gy2 - $gy1 )
+		DEFINE _y_FL	( $fy2 - $fy1 )
+		#
+		DEFINE _AX	( $gx1 + ($_x_min - $fx1) * $_x_GL / $_x_FL )
+		DEFINE _AY	( $gy1 + ($_y_min - $fy1) * $_y_GL / $_y_FL )
+		DEFINE _x_ALEN	( ($_x_max - $_x_min) * $_x_GL / $_x_FL )
+		DEFINE _y_ALEN	( ($_y_max - $_y_min) * $_y_GL / $_y_FL )
+		#
+		DEFINE _x_AX	( $_AX )
+		DEFINE _x_AY	( $_AY - $_x_off )
+		DEFINE _y_AX	( $_AX - $_y_off )
+		DEFINE _y_AY	( $_AY )
+		#
+		# convert everything to integer
+		#
+		FOREACH v { _x_AX _x_AY _x_ALEN _y_AX _y_AY _y_ALEN } {
+			DEFINE $v (INT($$v))
+		}
+		#
+		# draw the axes
+		#
+		ANGLE 0  AXIS $_x_min $_x_max 0 0 $_x_AX $_x_AY $_x_ALEN 1 0
+		ANGLE 90 AXIS $_y_min $_y_max 0 0 $_y_AX $_y_AY $_y_ALEN 2 1
+		#
+		# cleanup
+		#
+		ANGLE $angle
+		FOREACH v { $!!i _x_off _y_off _AX _AY\
+			_x_min _x_max _x_AX _x_AY _x_ALEN _x_FL _x_GL\
+			_y_min _y_max _y_AX _y_AY _y_ALEN _y_FL _y_GL } {
+			DEFINE $v DELETE 
+		}
+

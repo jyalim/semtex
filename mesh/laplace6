@@ -1,0 +1,61 @@
+# Laplace problem on unit square, essential BC u(x, y) = sin(x)*exp(-y)
+# which is also the analytical solution.
+#
+# NB: THIS SQUARE IS MODIFIED TO HAVE CURVED EDGES.
+
+<FIELDS>
+	c
+</FIELDS>
+
+<USER>
+	Geometry 2D-Cartesian
+	Exact    sin(x)*exp(-y)
+</USER>
+
+<TOKENS>
+	N_P  = 11
+	TOL_REL = 1e-12
+</TOKENS>
+
+<GROUPS NUMBER=1>
+	1	f	value
+</GROUPS>
+
+<BCS NUMBER=1>
+	1	f	1
+			<D>	c = sin(x)*exp(-y)	</D>
+</BCS>
+
+<NODES NUMBER=9>
+	1	0.0	0.0	0.0
+	2	0.5	0.0	0.0
+	3	1.0	0.0	0.0
+	4	0.0	0.5	0.0
+	5	0.5	0.5	0.0
+	6	1.0	0.5	0.0
+	7	0.0	1.0	0.0
+	8	0.5	1.0	0.0
+	9	1.0	1.0	0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1 	<Q>	1 2 5 4		</Q>
+	2	<Q>	2 3 6 5		</Q>
+	3	<Q>	4 5 8 7		</Q>
+	4	<Q>	5 6 9 8		</Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+	1	1	1	<B>	f	</B>
+	2	2	1	<B>	f	</B>
+	3	2	2	<B>	f	</B>
+	4	4	2	<B>	f	</B>
+	5	4	3	<B>	f	</B>
+	6	3	3	<B>	f	</B>
+	7	3	4	<B>	f	</B>
+	8	1	4	<B>	f	</B>
+</SURFACES>
+
+<CURVES NUMBER=1>
+	1	4	3	<ARC> 	1.0	</ARC>
+</CURVES>

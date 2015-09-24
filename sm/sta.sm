@@ -1,0 +1,274 @@
+arro	4	# Draw an arrow-head pointing along line (x1,y1)--(x2,y2).
+		# Input is in pairs: $1 = x1, $2 = y1, $3 = x2, $4 = y2.
+		# _dl is defined as some length (typically in screen coords).
+
+		RELOCATE $1 $2
+
+		DEFINE _xp1 $($xp)
+		DEFINE _yp1 $($yp)
+
+		RELOCATE $3 $4
+
+		DEFINE _xp2 $($xp)
+		DEFINE _yp2 $($yp)
+
+		DEFINE dx   ($_xp1 - $_xp2)
+		DEFINE dy   ($_yp1 - $_yp2)
+		DEFINE angl (ATAN2($dy,$dx))
+
+		DEFINE dx1 ($_dl*COS(0.25+$angl))
+		DEFINE dy1 ($_dl*SIN(0.25+$angl))
+		DEFINE _xx ($_xp2 + $dx1)
+		DEFINE _yy ($_yp2 + $dy1)
+
+		RELOCATE ( $_xp2 $_yp2 )
+		DRAW     ( $_xx $_yy )
+
+		DEFINE dx1 ($_dl*COS(-0.25+$angl))
+		DEFINE dy1 ($_dl*SIN(-0.25+$angl))
+		DEFINE _xx ($_xp2 + $dx1)
+		DEFINE _yy ($_yp2 + $dy1)
+
+		RELOCATE ( $_xp2 $_yp2 )
+		DRAW ( $_xx $_yy )
+		
+
+parrow  2       # Plot arrow-heads along line connecting $1 & $2
+		# Must have set limits before calling.
+		# Defines _dl for arro.
+
+		DEFINE _dl (0.02*SQRT(($gx2-$gx1)*($gx2-$gx1)	\
+				     +($gy2-$gy1)*($gy2-$gy1)))
+
+		DO i = 10, DIMEN($1)-1, 20 {
+			DEFINE _x1 ($1[$i - 1])
+			DEFINE _y1 ($2[$i - 1])
+			DEFINE _x2 ($1[$i])
+			DEFINE _y2 ($2[$i])
+			arro $_x1 $_y1 $_x2 $_y2
+		}
+
+arrow_line 45	# Draw a line in current style with an arrow-head on the end
+		# $1 = x1, $2 = y1
+		# $3 = x2, $4 = y2
+		# optional $5 = arrow size, relative to window (0.02 typical)
+		if ($?5) { \
+		DEFINE _dl ($5*SQRT(($gx2-$gx1)*($gx2-$gx1)	\
+				   +($gy2-$gy1)*($gy2-$gy1)))   \
+		} else { \
+		DEFINE _dl (0.02*SQRT(($gx2-$gx1)*($gx2-$gx1)	\
+				     +($gy2-$gy1)*($gy2-$gy1))) \
+		}
+		RELOCATE $1 $2
+		DEFINE _xp1 $($xp)
+		DEFINE _yp1 $($yp)
+		DRAW     $3 $4
+		DEFINE _xp2 $($xp)
+		DEFINE _yp2 $($yp)
+		DEFINE dx   ($_xp1 - $_xp2)
+		DEFINE dy   ($_yp1 - $_yp2)
+		DEFINE angl (ATAN2($dy,$dx))
+		DEFINE dx1 ($_dl*COS(0.25+$angl))
+		DEFINE dy1 ($_dl*SIN(0.25+$angl))
+		DEFINE _xx ($_xp2 + $dx1)
+		DEFINE _yy ($_yp2 + $dy1)
+		RELOCATE ( $_xp2 $_yp2 )
+		DRAW     ( $_xx $_yy )
+		DEFINE dx1 ($_dl*COS(-0.25+$angl))
+		DEFINE dy1 ($_dl*SIN(-0.25+$angl))
+		DEFINE _xx ($_xp2 + $dx1)
+		DEFINE _yy ($_yp2 + $dy1)
+		RELOCATE ( $_xp2 $_yp2 )
+		DRAW ( $_xx $_yy )
+
+xstate	1	# Plot X-state-variable history
+		DATA $1
+		READ { t_his 2 x_his 3 v_his 4 a_his 5 }
+		ERASE
+		WINDOW 1 3 1 3
+		LIMITS t_his x_his BOX CONNECT t_his x_his
+		XLABEL \r x(t)
+		WINDOW 1 3 1 2
+		LIMITS t_his v_his BOX CONNECT t_his v_his
+		XLABEL \r xdot(t)
+		WINDOW 1 3 1 1
+		LIMITS t_his a_his BOX CONNECT t_his a_his
+		XLABEL \r xddot(t)
+
+ystate	1	# Plot Y-state-variable history
+		DATA $1
+		READ { t_his 2 x_his 9 v_his 10 a_his 11 }
+		ERASE
+		WINDOW 1 3 1 3
+		LIMITS t_his x_his BOX CONNECT t_his x_his
+		XLABEL \r y(t)
+		WINDOW 1 3 1 2
+		LIMITS t_his v_his BOX CONNECT t_his v_his
+		XLABEL \r ydot(t)
+		WINDOW 1 3 1 1
+		LIMITS t_his a_his BOX CONNECT t_his a_his
+		XLABEL \r yddot(t)
+
+xforce	1	# Plot X (drag) force history
+		DATA $1
+		READ { t_his 2 pre_his 6 vis_his 7 tot_his 8 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS t_his 0 1.2 BOX CONNECT t_his pre_his
+		CONNECT t_his vis_his CONNECT t_his tot_his
+		XLABEL \r Pressure, Viscous, Total Drag (time)
+
+yforce	1	# Plot Y (lift) force history
+		DATA $1
+		READ { t_his 2 pre_his 12 vis_his 13 tot_his 14 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS t_his tot_his BOX CONNECT t_his pre_his
+		CONNECT t_his vis_his CONNECT t_his tot_his
+		XLABEL \r Pressure, Viscous, Total Lift (time)
+
+force	1	# Plot X (drag) & Y (lift) force histories
+		DATA $1
+		READ { t_his 2 prex 6 visx 7 totx 8 prey 12 visy 13 toty  14 }
+		ERASE
+		WINDOW 1 2 1 2
+		LIMITS t_his 0 1.2 BOX CONNECT t_his prex
+		CONNECT t_his visx CONNECT t_his totx
+		XLABEL \r Pressure, Viscous, Total Drag (time)
+		WINDOW 1 2 1 1
+		LIMITS t_his toty BOX CONNECT t_his prey
+		CONNECT t_his visy CONNECT t_his toty
+		XLABEL \r Pressure, Viscous, Total Lift (time)
+
+xpara   1	# Plot X vs Y displacement
+		DATA $1
+		READ {x_his 3 y_his 9 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS x_his y_his BOX CONNECT x_his y_his
+		XLABEL \r x(t)
+		YLABEL \r y(t)
+
+vpara   1	# Plot X vs Y velocities
+		DATA $1
+		READ {x_his 4 y_his 10 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS x_his y_his BOX CONNECT x_his y_his
+		XLABEL \r xdot(t)
+		YLABEL \r ydot(t)
+
+apara   1	# Plot X vs Y accelerations
+		DATA $1
+		READ {x_his 5 y_his 11 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS x_his y_his BOX CONNECT x_his y_his
+		XLABEL \r xddot(t)
+		YLABEL \r yddot(t)
+
+fpara	1	# Plot Y Force against X Force
+		DATA $1
+		READ {x_his 8 y_his 14 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS x_his y_his BOX CONNECT x_his y_his
+		XLABEL \r x force
+		YLABEL \r y force
+
+xphase   1	# Plot X displacement vs X velocity
+		DATA $1
+		READ {x_xhis 3 x_vhis 4 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS x_xhis x_vhis BOX CONNECT x_xhis x_vhis
+		XLABEL \r x(t)
+		YLABEL \r xdot(t)
+
+yphase   1	# Plot Y displacement vs Y velocity
+		DATA $1
+		READ {y_xhis 9 y_vhis 10 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS y_xhis y_vhis BOX CONNECT y_xhis y_vhis
+		XLABEL \r y(t)
+		YLABEL \r ydot(t)
+
+yf	1	# Plot Y force against Y displacement
+		DATA $1
+		READ {y_his 9 y_for 14 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS y_his y_for BOX CONNECT y_his y_for
+		XLABEL \r y(t)
+		YLABEL \r y-force(t)
+		parrow y_his y_for
+
+ypf	1	# Plot Y pressure force against Y displacement
+		DATA $1
+		READ {y_his 9 y_for 12 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS y_his y_for BOX CONNECT y_his y_for
+		XLABEL \r y(t)
+		YLABEL \r y-force(t)
+		parrow y_his y_for
+
+vf	1	# Plot Y force against Y velocity
+		DATA $1
+		READ {y_his 10 y_for 14 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS y_his y_for BOX CONNECT y_his y_for
+		XLABEL \r ydot(t)
+		YLABEL \r y-force(t)
+
+vpf	1	# Plot Y pressure force against Y velocity
+		DATA $1
+		READ {y_his 10 y_for 12 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS y_his y_for BOX CONNECT y_his y_for
+		XLABEL \r ydot(t)
+		YLABEL \r y-pressure-force(t)
+
+vvf	1	# Plot Y viscous force against Y velocity
+		DATA $1
+		READ {y_his 10 y_for 13 }
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS y_his y_for BOX CONNECT y_his y_for
+		XLABEL \r ydot(t)
+		YLABEL \r y-viscous-force(t)
+
+ypower	1	# Compute power flow in y direction
+		DATA $1
+		READ {t_his 2 y_his 10 y_for 14}
+		SET pow = y_his * y_for
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS t_his pow BOX CONNECT t_his pow
+		XLABEL \r t
+		YLABEL \r Power cross flow
+		RELOCATE $fx1 0.0
+		DRAW     $fx2 0.0
+
+power	1	# Compute power flow in both directions
+		DATA $1
+		READ {t_his 2 x_his 4 x_for 8 y_his 10 y_for 14}
+		SET pow = x_his * x_for + y_his * y_for
+		ERASE
+		WINDOW 1 1 1 1
+		LIMITS t_his pow BOX CONNECT t_his pow
+		XLABEL \r t
+		YLABEL \r Total power flow
+
+ps	1	# Set up to direct output to PostScript file plot.ps
+		dev postscript :SY@: :OF@: $1
+eps	1       # Set up to redirect Encapsulated PostScript to file
+		dev postfile   :SY@: :OF@: $1
+eps2	1       # Set up to redirect Encapsulated PostScript to file
+		dev postfile600   :SY@: :OF@: $1
+cps	1       # Set up to redirect Encapulsted Color PostScript to file
+		dev postcolfile   :SY@: :OF@: $1
+

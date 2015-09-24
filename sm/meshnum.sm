@@ -1,0 +1,26 @@
+# $Id: meshnum.sm,v 8.1 2015/04/20 11:14:17 hmb Exp $
+
+meshnum 	# Number a spectral element mesh
+		#
+		# You must call gridplot first!
+		#
+		# $Author: hmb $
+		# $Date: 2015/04/20 11:14:17 $
+		# $Revision: 8.1 $
+		# -------------------------------------------------------------
+		# EXTERNALS: _mesh_nr _mesh_ns _mesh_nel _mesh_x _mesh_y
+		# -------------------------------------------------------------
+		DEFINE _ntot ($_mesh_nr * $_mesh_ns)
+		SET cc = 0, ($_ntot-1)
+		DO k = 0, ($_mesh_nel-1) {
+		   set _xtmp = _mesh_x[cc]
+		   set _ytmp = _mesh_y[cc]
+		   define xc (SUM(_xtmp)/($_ntot))
+		   define yc (SUM(_ytmp)/($_ntot))
+		   define ll ($k + 1)
+		   relocate $xc $yc label $ll
+		   set cc = cc + $_ntot
+		}
+		FOREACH v ( _ntot _xtmp _ytmp xc yc cc) {
+		   DELETE $v
+		}

@@ -1,0 +1,86 @@
+# Thermal driven cavity problem for buoyancy-driven flow.
+# Left edge is hot, right edge is cool, top and bottom are insulated.
+
+<FIELDS>
+	u v c p
+</FIELDS>
+
+<USER>
+	u = 0.0
+	v = 0.0
+	c = T_MAX-x
+	p = 0.0
+</USER>
+
+<TOKENS>
+	N_TIME	 = 1
+	N_P	 = 10
+	N_STEP	 = 5000
+	IO_FLD   = 1000
+	D_T	 = 0.0008
+	T_REF    = 0.0
+	T_MAX    = 1.0
+	T_MIN	 = 0.0
+	PRANDTL  = 0.71
+	RAYLEIGH = 1.0e4
+	GRAVITY  = 1.0
+	KINVIS   = PRANDTL
+	BETA_T   = RAYLEIGH*PRANDTL
+	g_1      =  0.0
+	g_2      = -1.0
+	g_3      =  0.0
+</TOKENS>
+
+<GROUPS NUMBER=3>
+	1	h	hot
+	2	c	cold
+	3	i	insulated
+</GROUPS>
+
+<BCS NUMBER=3>
+	1	h	4
+			<D>	u = 0.0		</D>
+			<D>	v = 0.0		</D>
+			<D>	c = T_MAX	</D>
+			<H>	p = 0.0		</H>
+	2	c	4
+			<D>	u = 0.0		</D>
+			<D>	v = 0.0		</D>
+			<D>	c = T_MIN	</D>
+			<H>	p = 0.0		</H>
+	3	i	4
+			<D>	u = 0.0		</D>
+			<D>	v = 0.0		</D>
+			<N>	c = 0.0		</N>
+			<H>	p = 0.0		</H>
+</BCS>
+
+<NODES NUMBER=9>
+	1	0.0	0.0	0.0
+	2	0.5	0.0	0.0
+	3	1.0	0.0	0.0
+	4	0.0	0.5	0.0
+	5	0.5	0.5	0.0
+	6	1.0	0.5	0.0
+	7	0.0	1.0	0.0
+	8	0.5	1.0	0.0
+	9	1.0	1.0	0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1 	<Q>	1 2 5 4		</Q>
+	2	<Q>	2 3 6 5		</Q>
+	3	<Q>	4 5 8 7		</Q>
+	4	<Q>	5 6 9 8		</Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+	1	1	1	<B>	i	</B>
+	2	2	1	<B>	i	</B>
+	3	2	2	<B>	c	</B>
+	4	4	2	<B>	c	</B>
+	5	4	3	<B>	i	</B>
+	6	3	3	<B>	i	</B>
+	7	3	4	<B>	h	</B>
+	8	1	4	<B>	h	</B>
+</SURFACES>

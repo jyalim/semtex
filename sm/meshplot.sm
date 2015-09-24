@@ -1,0 +1,164 @@
+meshplot 12	# Plot an SEM mesh
+		#
+		# usage: meshplot filename [mode]
+		#
+		#        mode = 0,2 : draw elements
+		#        mode = 1,3 : draw all mesh lines
+		#
+		# If mode = 0 or 1, the plot limits are set to center the
+		# mesh and maintain an aspect ratio of 1.  Modes 2 and 3
+		# use the current plot limits. Default is mode 0.
+		#
+		# The following are saved:
+		#
+		# _mesh_x, _mesh_y, _mesh_nel, _mesh_nr, _mesh_nr
+		#
+		# Ron Henderson                           31 October 1991
+		# $Id: meshplot.sm,v 8.1 2015/04/20 11:14:17 hmb Exp $
+		DATA $1
+		READ { _nr 1 _ns 2 _nz 3 _nel 4 }
+		DEFINE _mesh_nr  (_nr)
+		DEFINE _mesh_ns  (_ns)
+		DEFINE _mesh_nel (_nel)
+		DEFINE _e_line (_nr * _ns * _nel + 1)
+		LINES 2 $_e_line 
+		READ { _x 1 _y 2 }
+		SET _mesh_x = _x
+		SET _mesh_y = _y
+		SET _ntot = _nr * _ns
+		IF( $?2 ) { SET _mode = $2 } ELSE { SET _mode = 0 }
+		IF( _mode < 2 ) {
+		   MinMax _x _xmin _xmax
+		   MinMax _y _ymin _ymax
+		   SET _xlen = 0.5 * ($_xmax - $_xmin)
+		   SET _ylen = 0.5 * ($_ymax - $_ymin)
+		   SET _xp   = 0.5 * ($_xmin + $_xmax)
+		   SET _yp   = 0.5 * ($_ymin + $_ymax)
+		   SET _len  = (_xlen > _ylen) ? _xlen + .001 : _ylen + .001
+		   DEFINE _xmin (_xp - _len) DEFINE _xmax (_xp + _len)
+		   DEFINE _ymin (_yp - _len) DEFINE _ymax (_yp + _len)
+		   LIMITS $_xmin $_xmax $_ymin $_ymax
+		   FOREACH v ( _xmin _xmax _ymin _ymax ) { DELETE $v }
+		   FOREACH v ( _xlen _ylen _xp _yp _len) { DELETE $v }
+		}
+		IF( _mode == 0 || _mode == 2 ) {
+		   SET _c1 = 0, (_nr-1)
+		   SET _c2 = (_nr-1), (_ntot - 1), (_nr)
+		   SET _c3 = (_ntot-1), (_ntot-_nr), -1
+		   SET _c4 = (_ntot-_nr), 0, (-_nr)
+		   DO k = 0, (_nel-1) {
+		      FOREACH cc ( _c1 _c2 _c3 _c4 ) {
+		         SET _xtmp = _x[ $cc ]
+		         SET _ytmp = _y[ $cc ]
+		         SET $cc   = $cc + _ntot
+		         CONNECT _xtmp _ytmp
+		      }
+		   }
+		   FOREACH v (_c1 _c2 _c3 _c4 _xtmp _ytmp) {DELETE $v}
+		}
+		IF( _mode == 1 || _mode == 3 ) {
+		   SET cs = 0
+		   DO k = 0, (_nel-1) {
+		      SET cc = (cs), (cs+_nr-1)
+		      DO i = 0, (_ns-1) {
+		         SET _xtmp = _x[ cc ]
+		         SET _ytmp = _y[ cc ]
+		         SET cc    = cc + _nr
+		         CONNECT _xtmp _ytmp
+		      }
+		      SET cc = (cs), (cs+_ntot-_nr), (_nr)
+		      DO i = 0, (_nr-1) {
+		         SET _xtmp = _x[ cc ]
+		         SET _ytmp = _y[ cc ]
+		         SET cc    = cc + 1
+		         CONNECT _xtmp _ytmp
+		      }
+		      SET cs = cs + _ntot
+		   }
+		   FOREACH v ( cc cs _xtmp _ytmp ) { DELETE $v }
+		}
+		FOREACH v ( _x _y _nr _ns _nz _nel _mode _eline ) { DELETE $v }
+meshplotE 23	# Plot an SEM mesh in the given order
+		#
+		# usage: meshplot filename order [mode]
+		#
+		#        order = vector listing element numbers in the order
+		#                  you want them drawn
+		#        mode  = 0,2 : draw elements
+		#        mode  = 1,3 : draw all mesh lines
+		#
+		# If mode = 0 or 1, the plot limits are set to center the
+		# mesh and maintain an aspect ratio of 1.  Modes 2 and 3
+		# use the current plot limits. Default is mode 0.
+		#
+		# The following are saved:
+		#
+		# _mesh_x, _mesh_y, _mesh_nel, _mesh_nr, _mesh_nr
+		#
+		# Ron Henderson                           31 October 1991
+		#
+		DATA $1
+		READ { _nr 1 _ns 2 _nz 3 _nel 4 }
+		DEFINE _mesh_nr  (_nr)
+		DEFINE _mesh_ns  (_ns)
+		DEFINE _mesh_nel (_nel)
+		DEFINE _e_line (_nr * _ns * _nel + 1)
+		LINES 2 $_e_line 
+		READ { _x 1 _y 2 }
+		SET _mesh_x = _x
+		SET _mesh_y = _y
+		SET _ntot   = _nr * _ns
+		SET _order  = $2
+		IF( $?3 ) { SET _mode = $3 } ELSE { SET _mode = 0 }
+		IF( _mode < 2 ) {
+		   MinMax _x _xmin _xmax
+		   MinMax _y _ymin _ymax
+		   SET _xlen = 0.5 * ($_xmax - $_xmin)
+		   SET _ylen = 0.5 * ($_ymax - $_ymin)
+		   SET _xp   = 0.5 * ($_xmin + $_xmax)
+		   SET _yp   = 0.5 * ($_ymin + $_ymax)
+		   SET _len  = (_xlen > _ylen) ? _xlen + .001 : _ylen + .001
+		   DEFINE _xmin (_xp - _len) DEFINE _xmax (_xp + _len)
+		   DEFINE _ymin (_yp - _len) DEFINE _ymax (_yp + _len)
+		   LIMITS $_xmin $_xmax $_ymin $_ymax
+		   FOREACH v ( _xmin _xmax _ymin _ymax ) { DELETE $v }
+		   FOREACH v ( _xlen _ylen _xp _yp _len) { DELETE $v }
+		}
+		IF( _mode == 0 || _mode == 2 ) {
+		   SET _c1 = 0, (_nr-1)
+		   SET _c2 = (_nr-1), (_ntot - 1), (_nr)
+		   SET _c3 = (_ntot-1), (_ntot-_nr), -1
+		   SET _c4 = (_ntot-_nr), 0, (-_nr)
+		   DO k = 0, (DIMEN(_order)-1) {
+		      DEFINE _off ((_order[$k]-1) * _ntot)
+		      FOREACH cc ( _c1 _c2 _c3 _c4 ) {
+		         SET _xtmp = _x[ $cc + $_off ]
+		         SET _ytmp = _y[ $cc + $_off ]
+		         CONNECT _xtmp _ytmp
+		      }
+		   }
+		   FOREACH v (_c1 _c2 _c3 _c4 _xtmp _ytmp _off) {DELETE $v}
+		}
+		IF( _mode == 1 || _mode == 3 ) {
+		   SET cs = 0
+		   DO k = 0, (DIMEN(_order)-1) {
+		      DEFINE _off ((_order[$k]-1) * _ntot)
+		      SET cc = ($_off), ($_off+_nr-1)
+		      DO i = 0, (_ns-1) {
+		         SET _xtmp = _x[ cc ]
+		         SET _ytmp = _y[ cc ]
+		         SET cc    = cc + _nr
+		         CONNECT _xtmp _ytmp
+		      }
+		      SET cc = ($_off), ($_off+_ntot-_nr), (_nr)
+		      DO i = 0, (_nr-1) {
+		         SET _xtmp = _x[ cc ]
+		         SET _ytmp = _y[ cc ]
+		         SET cc    = cc + 1
+		         CONNECT _xtmp _ytmp
+		      }
+		      SET cs = cs + _ntot
+		   }
+		   FOREACH v ( cc cs _xtmp _ytmp _off) { DELETE $v }
+		}
+		FOREACH v ( _x _y _nr _ns _nz _nel _mode _eline ) { DELETE $v }

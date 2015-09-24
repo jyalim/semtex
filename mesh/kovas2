@@ -1,0 +1,75 @@
+# -- Kovasznay flow in x--y plane, 3D solution, Dirichlet BCs.
+##############################################################################
+# Kovasznay flow has the exact solution
+#
+# 	u = 1 - exp(lambda*x)*cos(2*PI*y)
+# 	v = lambda/(2*PI)*exp(lambda*x)*sin(2*PI*y)
+# 	p = (1 - exp(lambda*x))/2
+#
+# where lambda = Re/2 - sqrt(0.25*Re*Re + 4*PI*PI).
+#
+# We supply the exact essential BCs on velocity.
+
+<USER>
+	u = 1-exp(LAMBDA*x)*cos(2*PI*y)
+	v = LAMBDA/(2*PI)*exp(LAMBDA*x)*sin(2*PI*y)
+	w = 0.0
+	p = (1 - exp(LAMBDA*x))/2
+</USER>
+
+<FIELDS>
+	u v w p
+</FIELDS>
+
+<TOKENS>
+	N_Z     = 4
+	N_TIME  = 1
+	N_P  = 8
+	N_STEP  = 200
+	D_T     = 0.005
+	Re      = 40.0
+	KINVIS  = 1.0/Re
+	LAMBDA  = Re/2.0-sqrt(0.25*Re*Re+4.0*PI*PI)
+</TOKENS>
+
+<GROUPS NUMBER=1>
+	1	v	velocity
+</GROUPS>
+
+<BCS NUMBER=1>
+	1	v	4
+			<D> u = 1-exp(LAMBDA*x)*cos(2*PI*y)		</D>
+			<D> v = LAMBDA/(2*PI)*exp(LAMBDA*x)*sin(2*PI*y)	</D>
+			<D> w = 0.0					</D>
+			<H> p = 0					</H>
+</BCS>
+
+<NODES NUMBER=9>
+	1	-0.5	-0.5	0.0
+	2	0	-0.5	0.0
+	3	1	-0.5	0.0
+	4	-0.5	0	0.0
+	5	0	0	0.0
+	6	1	0	0.0
+	7	-0.5	0.5	0.0
+	8	0	0.5	0.0
+	9	1	0.5	0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1 <Q> 1 2 5 4 </Q>
+	2 <Q> 2 3 6 5 </Q>
+	3 <Q> 4 5 8 7 </Q>
+	4 <Q> 5 6 9 8 </Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+	1	1	1	<B>	v	</B>
+	2	2	1	<B>	v	</B>
+	3	2	2	<B>	v	</B>
+	4	4	2	<B>	v	</B>
+	5	4	3	<B>	v	</B>
+	6	3	3	<B>	v	</B>
+	7	3	4	<B>	v	</B>
+	8	1	4	<B>	v	</B>
+</SURFACES>

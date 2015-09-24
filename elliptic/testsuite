@@ -1,0 +1,106 @@
+#!/bin/csh
+##############################################################################
+# Run elliptic solver on test files.
+# $Id: testsuite,v 8.1 2015/04/20 11:14:14 hmb Exp $
+
+echo "*************************************************"
+echo "* Spectral element Helmholtz solver test suite. *"
+echo "*************************************************"
+
+set CODE=elliptic
+set MESHDIR=../mesh
+
+if (!(-e $CODE)) then
+	echo "Building application, please wait..."
+	if { gmake } then
+	    gmake clean
+	    echo "Done."
+	else
+	    echo "Unable to compile."
+	    exit 1
+	endif
+	echo ""
+endif
+
+rm -f *.num
+
+if (!(-e laplace1))   cp $MESHDIR/laplace1   .
+if (!(-e laplace4))   cp $MESHDIR/laplace4   .
+if (!(-e laplace5))   cp $MESHDIR/laplace5   .
+if (!(-e laplace6))   cp $MESHDIR/laplace6   .
+if (!(-e laplace7))   cp $MESHDIR/laplace7   .
+if (!(-e laplace3))   cp $MESHDIR/laplace3   .
+if (!(-e laplace8))   cp $MESHDIR/laplace8   .
+if (!(-e poisson1))   cp $MESHDIR/poisson1   .
+if (!(-e helmholtz1)) cp $MESHDIR/helmholtz1 .
+if (!(-e mixed1))     cp $MESHDIR/mixed1     .
+
+echo ""
+echo "1. -- 2D Laplace problem, Dirichlet BCS"
+$CODE laplace1
+
+echo ""
+echo "2.  -- 2D Laplace problem, Dirichlet BCS, iterative solver"
+$CODE -i laplace1
+rm laplace1*
+
+echo ""
+echo "3.  -- 2D Laplace problem, one Neuman boundary"
+$CODE laplace4
+
+echo ""
+echo "4.  -- 2D Laplace problem, one Neuman boundary, iterative solver"
+$CODE -i laplace4
+rm laplace4*
+
+echo ""
+echo "5.  -- 2D Laplace problem, nonhomogenous Dirichlet BC"
+$CODE laplace5
+rm laplace5*
+
+echo ""
+echo "6.  -- 2D Laplace problem, Dirichlet BC, curved boundary"
+$CODE laplace6
+rm laplace6*
+
+echo ""
+echo "7.  -- 2D Laplace problem, Dirichlet and Neumann BCS"
+$CODE laplace7
+rm laplace7*
+
+echo ""
+echo "8.  -- 3D Laplace problem, Dirichlet boundaries, direct solver"
+$CODE laplace3
+compare  laplace3 laplace3.fld > /dev/null
+
+echo ""
+echo "9.  -- 3D Laplace problem, Dirichlet boundaries, iterative solver"
+$CODE -i laplace3
+compare  laplace3 laplace3.fld > /dev/null
+rm laplace3*
+
+echo ""
+echo "10. -- 3D Laplace problem, cylindrical direct solver"
+$CODE laplace8
+compare  laplace8 laplace8.fld > /dev/null
+
+echo ""
+echo "11. -- 3D Laplace problem, cylindrical iterative solver"
+$CODE -i laplace8
+compare  laplace8 laplace8.fld > /dev/null
+rm laplace8*
+
+echo ""
+echo "12. -- 2D Poisson problem, Dirichlet BCS"
+$CODE poisson1
+rm poisson1*
+
+echo ""
+echo "13. -- 2D Helmholtz problem, Dirichlet BCS"
+$CODE helmholtz1
+rm helmholtz1*
+
+echo ""
+echo "14. -- 2D Poisson problem, 1 mixed BC"
+$CODE mixed1
+rm mixed1*

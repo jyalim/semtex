@@ -1,0 +1,78 @@
+# -- Kovasznay flow in y--z plane, 3D solution, semi-periodic BCs.
+##############################################################################
+# Kovasznay flow in the y--z plane has the exact solution
+#
+#	u = 0
+# 	v = 1 - exp(lambda*y)*cos(2*PI*z)
+# 	w = lambda/(2*PI)*exp(lambda*y)*sin(2*PI*z)
+# 	p = (1 - exp(lambda*x))/2
+#
+# where lambda = Re/2 - sqrt(0.25*Re*Re + 4*PI*PI).
+#
+# Only 4 plane/2 modes are needed for full resolution.
+
+<USER>
+	u = 0
+ 	v = 1-exp(LAMBDA*y)*cos(TWOPI*z)
+ 	w = LAMBDA/(TWOPI)*exp(LAMBDA*y)*sin(TWOPI*z)
+ 	p = (1-exp(LAMBDA*x))/2
+</USER>
+
+<FIELDS>
+	u v w p
+</FIELDS>
+
+<TOKENS>
+	N_Z=4
+	Lz=1.0
+	BETA=TWOPI/Lz
+	N_TIME=2
+	N_P=8
+	N_STEP=200
+	D_T=0.005
+	Re=40.0
+	KINVIS=1.0/Re
+	LAMBDA=Re/2.0-sqrt(0.25*Re*Re+4.0*PI*PI)
+</TOKENS>
+
+<GROUPS NUMBER=1>
+	1	v	velocity
+</GROUPS>
+
+<BCS NUMBER=1>
+	1	v	4
+		<D> u = 0.0						</D>
+		<D> v = 1-exp(LAMBDA*y)*cos(TWOPI*z)			</D>
+		<D> w = LAMBDA/(TWOPI)*exp(LAMBDA*y)*sin(TWOPI*z)	</D>
+		<H> p = 0						</H>
+</BCS>
+
+<NODES NUMBER=9>
+	1	-0.5	-0.5	0.0
+	2	0	-0.5	0.0
+	3	0.5	-0.5	0.0
+	4	-0.5	0	0.0
+	5	0	0	0.0
+	6	0.5	0	0.0
+	7	-0.5	1.0	0.0
+	8	0	1.0	0.0
+	9	0.5	1.0	0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1 <Q> 1 2 5 4 </Q>
+	2 <Q> 2 3 6 5 </Q>
+	3 <Q> 4 5 8 7 </Q>
+	4 <Q> 5 6 9 8 </Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+	1	1	1	<B>	v	</B>
+	2	2	1	<B>	v	</B>
+	3	2	2	<B>	v	</B>
+	4	4	2	<B>	v	</B>
+	5	4	3	<B>	v	</B>
+	6	3	3	<B>	v	</B>
+	7	3	4	<B>	v	</B>
+	8	1	4	<B>	v	</B>
+</SURFACES>

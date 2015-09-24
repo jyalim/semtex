@@ -1,0 +1,75 @@
+#
+# Now for some laser printers
+#
+# Note that we use registers 7,8 in postscript
+# 7 and 8 are used to insert `stroke' every R8 XY's
+#
+#postscript|POSTSCRIPT|Postscript for square plots (8 x 8in):\
+#	:xr#2390:yr#2390:ch#.0229:cw#.013:\
+#	:CW=stroke\ngrestore\nshowpage\nend\n:\
+#	:DE=L\n(7#1+!778<#11;#0!7)CS M\n:\
+#	:LR=(#22!9#300!8#0!7:\
+#	:OW='%!\ninitgraphics\n:\
+#	:OX= 20 dict begin\n72 300 div dup scale\n\
+#	1 setlinejoin 0 setlinecap\n\
+#	/Helvetica findfont 55 scalefont setfont \n\
+#	/B { currentpoint stroke newpath moveto } def\n\
+#	/F { moveto 0 setlinecap} def\n\
+#	/C { CS M 1 1 3 { pop 3 1 roll 255 div } for SET_COLOUR } def\n\
+#	/CS { currentpoint stroke } def\n\
+#	/CF { currentpoint fill } def\n\
+#	/L { lineto } def /M { moveto } def\n\
+#	/P { moveto 0 1 rlineto stroke } def\n\
+#	/T { currentlinecap exch 1 setlinecap show setlinecap } def\n\
+#        errordict /nocurrentpoint { pop 0 0 M currentpoint } put\n:\
+#	:OY=/SET_COLOUR { pop pop pop } def\n:\
+#	:OZ= 80 600 translate\ngsave\n:\
+#	:ME=P\n:\
+#	:PG=stroke showpage grestore gsave\n(#0!7:\
+#	:VE=M :XY=(1%d) (2%d) :FS=(#0!7)B\n:FE=CF M\n:FD=(1%d) (2%d) L\n:\
+#	:CT= (1%d) (2%d) (3%d) C\n:DC=black\
+#	:TB=(1%d) (2%d) F '(:TE=') T\n:\
+#	:lt=01234\:;:\
+#	:ML=CS (1$0)[]($1)[6 12]($2)[32 24]($3)[80 24]($4)[6 12 32 12]\
+#		($\:)currentrgbcolor 5 3 roll 1 1 1 setrgbcolor []\
+#		($;)M setrgbcolor CS []($$) 0 setdash M\n:\
+#	:LW=CS M (1|$0#1%d$D1%g) 100 mul 72 div($$) dup setlinewidth\n\
+#	/P [ /moveto cvx 0 5 -1 roll .05 add dup -2 div 0 exch /rmoveto cvx \
+#	/rlineto cvx /stroke cvx ] cvx def\n:\
+#	:OF=ps_XXXXXX:\
+#	:SY=lpr -r $F:
+#post_remote|postscript_remote|Some postscript laser writer:\
+#	:SY=cat $F | rsh $1 lpr -P$2 ; rm $F:tc=postscript:
+#post_colour|post_color|Colour postscript printer:\
+#	:OY=/SET_COLOUR { setrgbcolor } def\n:\
+#	:SY=lpr -r -Pps_colour0 $F:\
+#	:tc=postscript:
+#blackpostscript|postscript with a black background:\
+#	:OZ= 80 600 translate\n\
+#	0 0 0 setrgbcolor\n\
+#	0 0 M 0 2390 L 2390 2390 L 2390 0 L CF\n\
+#	1 1 1 setrgbcolor\n\
+#	gsave\n:\
+#	:tc=post_colour:
+#postport|POSTPORT|Postscript for portrait mode full page plots:\
+#	:yr#3200:xr#2390:\
+#	:OZ= 80 50 translate\ngsave\n:tc=postscript:
+#postport_remote|POSTPORT_REMOTE:\
+#	:SY=cat $F | rsh $1 lpr -P$2 ; rm $F:tc=postport:
+#postland|POSTLAND|Postscript driver for landscape plots compress y-axis:\
+#        :xr#3200:yr#2390:cw#.0097:ch#.0229:\
+#	:OZ= 2470 50 translate 90 rotate\ngsave\n:\
+#        :tc=postscript:
+#postland_remote|Some landscape postscript laser writer on a remote machine:\
+#	:SY=cat $F | rsh $1 lpr -P$2 ; rm $F:tc=postland:
+postencol|encol|postcolfile|encapsulated colour postscript,written to file $1:\
+	:OW='%!PS-Adobe-2.0 EPSF-2.0\n'%'%Creator\: SM\n\
+	'%'%BoundingBox\: 18 144 592 718\n'%'%DocumentFonts\: Helvetica\n\
+	'%'%EndComments\n:\
+	:OY=/SET_COLOUR { setrgbcolor } def\n:\
+	:SY=mv $F $1:tc=postscript:
+#postlandfile|postlandencap|encapsulated landscape postscript written to $F:\
+#	:OW='%!PS-Adobe-2.0 EPSF-2.0\n'%'%Creator\: SM\n\
+#	'%'%BoundingBox\: 22 16 596 784\n'%'%DocumentFonts\: Helvetica\n\
+#	'%'%EndComments\n:\
+#	:SY=mv $F $1:tc=postland:

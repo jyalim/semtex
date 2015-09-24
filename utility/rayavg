@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# rayavg: generate field-dump averages along rays in the dx,dy-direction
+# emanating from an x-y line. It is assumed that the z-direction variations
+# have already been discarded using project -z1.
+#
+# usage: rayavg npts navg x1 y1 x2 y2 dx dy session file
+#
+# The rays start at npts x,y points along the line joining x1,y1 to x2,y2;
+# along each ray there are navg points along the line x,y to x+dx,y+dy.
+#
+# Output is to stdout, with each line of the form
+# x  y  avg1 avg2 avg3 ...
+# where the number of variables on each line is determined by the number
+# of scalar fields in the data file and x y is the starting point of each
+# ray.
+#
+# Npts and navg must each be at least 2.  No traps are set to
+# ensure that all the generated points lie within the data domain.
+#
+# $Id: rayavg,v 7.4 2013/10/21 17:27:48 hmb Exp $
+
+case $# in
+10) ;;
+*) echo 'Usage: rayavg npts navg x1 y1 x2 y2 dx dy session file'; exit 1;;
+esac
+
+if test $1 -ge 2 && test $2 -ge 2
+then
+echo $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} | awk '
+{
+    NP      = $1      ;
+    NA      = $2      ;
+    X1      = $3      ;
+    Y1      = $4      ;
+    X2      = $5      ;
+    Y2      = $6      ;
+    DX      = $7      ;
+    DY      = $8      ;
+    XD      = $5 - $3 ;
+    YD      = $6 - $4 ;
+    session = $9      ;
+    file    = $10     ;
+}
+END {
+for (i = 0; i < NP; i++) {
+    xs = X1+i*XD/(NP-1)  ;
+    ys = Y1+i*YD/(NP-1)  ;
+    xe = xs + DX         ;
+    ye = ys + DY         ;
+    printf ("%8g %8g ", xs, ys) ;
+    system (sprintf ("pline %d %g %g 0.0 %g %g 0.0|probe -s %s %s|average", \
+                     NA, xs, ys, xe, ye, session, file)) ;
+}
+} '
+else
+    echo 'number of points must be at least 2'
+    exit 1
+fi
+
+exit 0

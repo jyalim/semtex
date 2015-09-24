@@ -1,0 +1,135 @@
+#!/bin/csh
+#
+#  usage:save [options] session
+#
+#  [options]:
+#
+#	-chk	If the field file is empty save a checkpoint file
+#
+#
+#  This is a simple script to cycle through a set of simulation files.
+#  It saves the current set in the subdirectory "Runs" using a sequence
+#  number stored in the file ".sequence".  Then, it increments the
+#  sequence file and links the previous field file to the restart file.
+#
+#  Files		Description		Compressed
+#  ------------------------------------------------------
+#  $ssn			Session file		
+#  $ssn.sta		State-variable file         *
+#  $ssn.his             History-point  file         *
+#  $ssn.trk             Particle-track file         *
+#  $ssn.fld		Field file
+#  $ssn.avg             Average file
+#  $ssn.mix             Mixing length file
+#  $ssn.chk		Checkpoint file
+#  $ssn.mdl             Modal energies              *
+#  $ssn.log             Log file                    *
+#  ------------------------------------------------------
+
+if ($#argv < 1) then
+	echo "usage: save [options] session"
+	exit 0
+endif
+
+# -- Process command line arguments
+
+while ($#argv > 1)
+	switch ($argv[1])
+		case -chk:
+			set chk
+			breaksw
+		default:
+			echo "save: unknown option:" $argv[1]
+			breaksw
+	endsw
+	shift argv
+end
+
+set ssn = $argv[1]
+
+# -- Set default file lists
+
+set FilesToCp	= ( fld avg mix )
+set FilesToComp = ( sta his trk mdl flx for log geom )
+set FilesToTar  = ( )
+
+if (-e $ssn.0.phs) then 
+  set PhaseAvgs   = ( `l $ssn.*.phs` )
+endif
+
+if (-e .sequence) then	
+	set seq = `cat .sequence`
+else
+	set seq = 1
+endif
+
+# -- Save the current results
+
+echo "Saving current results as sequence" $seq
+
+if (!(-e Runs)) then
+	mkdir Runs
+endif
+
+if ((-z $ssn.fld) || !(-e $ssn.fld)) then
+   if ($?chk) then
+	echo "Empty field file -- using the checkpoint file"
+	if ((-z $ssn.) || !(-e $ssn.chk)) then
+		echo "save: ERROR: empty checkpoint file"
+		exit 1
+        else
+		cp $ssn.chk Runs/$ssn.fld.$seq
+	endif
+   else
+        echo "save: ERROR: empty field file"
+	exit  1
+   endif
+else 
+	cp $ssn.fld Runs/$ssn.fld.$seq
+endif
+
+if (-e $ssn.avg) then
+	cp $ssn.avg Runs/$ssn.avg.$seq
+endif
+
+if (-e $ssn.mix) then
+	cp $ssn.mix Runs/$ssn.mix.$seq
+endif
+
+if (-e $ssn.0.phs) then
+  foreach f ( ${PhaseAvgs} )
+    cp $f Runs/$f.$seq
+  end
+endif
+
+# -- Compression list 
+
+foreach f ( ${FilesToComp} )
+	if ((-e $ssn.$f) && !(-z $ssn.$f)) then
+ 		cat $ssn.$f | gzip > Runs/$ssn.$f.$seq.gz
+	endif
+end
+
+# -- Tar list
+
+#set tlist = ""
+#foreach f ( ${FilesToTar} )
+#	set tlist = ($tlist $ssn.$f)
+#end
+#tar cvf Runs/$ssn.stats.$seq $tlist
+
+# -- Reset the restart file
+
+echo "Updating the restart file"
+/bin/rm -f $ssn.rst
+ln -s Runs/$ssn.fld.$seq $ssn.rst
+
+# -- Increment the sequence file
+
+echo "Updating the sequence file"
+@ seq += 1
+/bin/rm -f .sequence
+echo $seq > .sequence
+
+echo "Done"
+exit  0

@@ -1,0 +1,76 @@
+# -- Cylindrical Couette flow, solved in cylindrical coordinates.
+##############################################################################
+# 4 element Taylor--Couette flow, 3D, inner cylinder spinning at rate OMEGA.
+# A = -4.2631578947368434, B = 4.2631578947368434.
+# 1/6 of a full rev (BETA = 6).
+
+<FIELDS>
+	u v w p
+</FIELDS>
+
+<USER>
+	u = 0
+	v = 0
+	w = A*y+B/y
+	p = 0
+</USER>
+
+<TOKENS>
+	CYLINDRICAL = 1
+	N_Z         = 2
+	BETA        = 6.0
+	N_TIME      = 1
+	N_P      = 4
+	N_STEP      = 200
+	D_T         = 0.01
+	KINVIS      = 1.0
+	OMEGA       = 1.0
+	Ri          = 0.9
+	Ro          = 1.0
+	A           = -OMEGA*(Ri*Ri)/(Ro*Ro-Ri*Ri)
+	B           = -A*Ro*Ro
+	TOL_REL     = 1e-15
+	TOL_ABS     = TOL_REL
+</TOKENS>
+
+<GROUPS NUMBER=1>
+	1	v	velocity
+</GROUPS>
+
+<BCS NUMBER=1>
+	1	v	4
+			<D>	u = 0		</D>
+			<D>	v = 0		</D>
+			<D>     w = A*y+B/y	</D>
+			<H>	p = 0		</H>
+</BCS>
+
+<NODES NUMBER=9>
+	1	0.0	0.9	0.0
+	2	0.5	0.9	0.0
+	3	1.0	0.9	0.0
+	4	0.0	0.95	0.0
+	5	0.5	0.95	0.0
+	6	1.0	0.95	0.0
+	7	0.0	1.0	0.0
+	8	0.5	1.0	0.0
+	9	1.0	1.0	0.0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1	<Q>	1 2 5 4		</Q>
+	2	<Q>	2 3 6 5		</Q>
+	3	<Q>	4 5 8 7		</Q>
+	4	<Q>	5 6 9 8		</Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+	1	1	1	<B>	v	</B>
+	2	2	1	<B>	v	</B>
+	3	2	2	<B>	v	</B>
+	4	4	2	<B>	v	</B>
+	5	4	3	<B>	v	</B>
+	6	3	3	<B>	v	</B>
+	7	3	4	<B>	v	</B>
+	8	1	4	<B>	v	</B>
+</SURFACES>

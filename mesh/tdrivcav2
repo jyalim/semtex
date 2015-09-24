@@ -1,0 +1,126 @@
+# Thermal driven cavity problem for buoyancy-driven flow.
+# Left edge is hot, right edge is cool, top and bottom are insulated.
+
+<FIELDS>
+	u v c p
+</FIELDS>
+
+<USER>
+	u = 0.0
+	v = 0.0
+	c = T_MAX-x
+	p = 0.0
+</USER>
+
+<TOKENS>
+	N_TIME	= 3
+	N_P	= 14
+	N_STEP	= 100000
+	IO_FLD  = 1000
+	D_T	= 0.0005
+	T_REF   = 0.0
+	T_MAX   = 1.0
+	T_MIN	= 0.0
+	PRANDTL  = 0.71
+	RAYLEIGH = 1.0e4
+	GRAVITY  = 1.0
+	KINVIS   = PRANDTL
+	BETA_T   = RAYLEIGH*PRANDTL
+	g_1     =  0.0
+	g_2     = -1.0
+	g_3     =  0.0
+</TOKENS>
+
+<GROUPS NUMBER=3>
+	1	h	hot
+	2	c	cold
+	3	i	insulated
+</GROUPS>
+
+<BCS NUMBER=3>
+	1	h	4
+			<D>	u = 0.0		</D>
+			<D>	v = 0.0		</D>
+			<D>	c = T_MAX	</D>
+			<H>	p = 0.0		</H>
+	2	c	4
+			<D>	u = 0.0		</D>
+			<D>	v = 0.0		</D>
+			<D>	c = T_MIN	</D>
+			<H>	p = 0.0		</H>
+	3	i	4
+			<D>	u = 0.0		</D>
+			<D>	v = 0.0		</D>
+			<N>	c = 0.0		</N>
+			<H>	p = 0.0		</H>
+</BCS>
+
+<NODES NUMBER=25>
+	1	0.0	0.0	0.0
+	2	0.2	0.0	0.0
+	3	0.5	0.0	0.0
+	4	0.8	0.0	0.0
+	5	1.0	0.0	0.0
+
+	6	0.0	0.2	0.0
+	7	0.2	0.2	0.0
+	8	0.5	0.2	0.0
+	9	0.8	0.2	0.0
+	10	1.0	0.2	0.0
+
+	11	0.0	0.5	0.0
+	12	0.2	0.5	0.0
+	13	0.5	0.5	0.0
+	14	0.8	0.5	0.0
+	15	1.0	0.5	0.0
+
+	16	0.0	0.8	0.0
+	17	0.2	0.8	0.0
+	18	0.5	0.8	0.0
+	19	0.8	0.8	0.0
+	20	1.0	0.8	0.0
+
+	21	0.0	1.0	0.0
+	22	0.2	1.0	0.0
+	23	0.5	1.0	0.0
+	24	0.8	1.0	0.0
+	25	1.0	1.0	0.0
+</NODES>
+
+<ELEMENTS NUMBER=16>
+	1 	<Q>  1  2  7  6	</Q>
+	2	<Q>  2  3  8  7	</Q>	
+	3	<Q>  3  4  9  8	</Q>
+	4	<Q>  4  5 10  9	</Q>
+	5	<Q>  6  7 12 11	</Q>
+	6	<Q>  7  8 13 12	</Q>
+	7	<Q>  8  9 14 13	</Q>
+	8	<Q>  9 10 15 14	</Q>
+	9	<Q> 11 12 17 16	</Q>
+	10	<Q> 12 13 18 17 </Q>
+	11	<Q> 13 14 19 18	</Q>
+	12	<Q> 14 15 20 19	</Q>
+	13	<Q> 16 17 22 21	</Q>
+	14	<Q> 17 18 23 22	</Q>
+	15	<Q> 18 19 24 23	</Q>
+	16	<Q> 19 20 25 24	</Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=16>
+	1	1	1	<B>	i	</B>
+	2	2	1	<B>	i	</B>
+	3	3	1	<B>	i	</B>
+	4	4	1	<B>	i	</B>
+	5	4	2	<B>	c	</B>
+	6	8	2	<B>	c	</B>
+	7	12	2	<B>	c	</B>
+	8	16	2	<B>	c	</B>
+	9	16	3	<B>	i	</B>
+	10	15	3	<B>	i	</B>
+	11	14	3	<B>	i	</B>
+	12	13	3	<B>	i	</B>
+	13	13	4	<B>	h	</B>
+	14	9	4	<B>	h	</B>
+	15	5	4	<B>	h	</B>
+	16	1	4	<B>	h	</B>	
+</SURFACES>

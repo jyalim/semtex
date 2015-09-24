@@ -1,0 +1,62 @@
+# Flow in a box with imposed boundaries.
+
+<USER>
+	u = 0.0
+	v = 0.1*TWOPI*sin(TWOPI*t)
+	p = 0.0
+</USER>
+
+<FIELDS>
+	u v p
+</FIELDS>
+
+<TOKENS>
+	N_TIME   = 3
+	N_P   = 7
+	N_STEP   = 25
+	IO_HIS   = 1
+	D_T      = 0.01
+	KINVIS   = 0.01
+	STEP_MAX = 1000
+</TOKENS>
+
+<GROUPS NUMBER=1>
+	1	v	velocity
+</GROUPS>
+
+<BCS NUMBER=1>
+	1	v	3
+			<D>	u = 0.0		</D>
+			<D>	v = 0.0		</D>
+			<H>	p = 0.0		</H>
+</BCS>
+
+<NODES NUMBER=9>
+	1	0	0	0
+	2	1	0	0
+	3	1	1	0
+	4	0	1	0
+	5	2	0	0
+	6	2	1	0
+	7	2	2	0
+	8	1	2	0
+	9	0	2	0
+</NODES>
+
+<ELEMENTS NUMBER=4>
+	1	<Q>	1	2	3	4	</Q>
+	2	<Q>	2	5	6	3	</Q>
+	3	<Q>	4	3	8	9	</Q>
+	4	<Q>	3	6	7	8	</Q>
+</ELEMENTS>
+
+<SURFACES NUMBER=8>
+	1	1	1	<B>	v	</B>
+	2	2	1	<B>	v	</B>
+	3	2	2	<B>	v	</B>
+	4	4	2	<B>	v	</B>
+	5	4	3	<B>	v	</B>
+	6	3	3	<B>	v	</B>
+	7	3	4	<B>	v	</B>
+	8	1	4	<B>	v	</B>
+</SURFACES>
